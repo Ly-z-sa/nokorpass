@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Movie Details — Cinemart</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <script type="module" src="auth-guard.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #000000;
+      --dark: #0d0d0d;
+      --card: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #ffffff;
+      --muted: #b0b0b8;
+      --accent: #e8490f;
+      --accent2: #f5a623;
+      --white: #ffffff;
+    }
+    html { scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none; }
+    ::-webkit-scrollbar { display: none; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--black);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    
+    /* Nav Base inherited from Index */
+    nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 60px; height: 64px; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+    .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.35rem; color: var(--white); letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo img { height: 28px; width: auto; }
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--muted); font-size: 0.875rem; font-weight: 500; letter-spacing: 0.02em; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--white); }
+    
+    /* Footer Base inherited */
+    footer { background: var(--dark); border-top: 1px solid var(--border); padding: 52px 60px 36px; margin-top: 80px; }
+    .footer-grid { display: grid; grid-template-columns: 1.2fr 1.5fr auto; gap: 40px; margin-bottom: 48px; }
+    .footer-brand .logo { display:block; margin-bottom:10px; font-size: 1.2rem;}
+    .footer-brand p { color: var(--muted); font-size: 0.82rem; max-width: 260px; margin-bottom: 20px;}
+    .social-links { display: flex; gap: 12px; }
+    .social-links a { width:34px; height:34px; border-radius:8px; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--muted); text-decoration:none;}
+    .social-links a:hover { color:var(--accent); border-color:var(--accent); }
+    .footer-col h4, .footer-payments h4 { font-family: 'Syne', sans-serif; text-transform:uppercase; font-size: 0.8rem; letter-spacing: 0.08em; color: var(--white); margin-bottom: 16px;}
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 10px; }
+    .footer-col ul a { color: var(--muted); text-decoration: none; font-size: 0.82rem; }
+    .footer-col ul a:hover { color: var(--text); }
+    .payment-icons { display:flex; gap:12px; flex-wrap:wrap;}
+    .payment-icons img { height:36px; border-radius:4px; }
+    .footer-links-group { display: flex; gap: 60px; }
+    .footer-bottom { border-top: 1px solid var(--border); padding-top: 24px; display:flex; justify-content:space-between; font-size: 0.78rem; color:var(--muted);}
+    
+        /* ── MOVIE DETAILS HERO ── */
+    .movie-hero {
+      position: relative;
+      padding: 60px;
+      display: flex;
+      gap: 48px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero-poster {
+      flex: 0 0 320px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      aspect-ratio: 3/4;
+    }
+    
+    .hero-poster img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .hero-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      color: var(--white);
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-weight: 500;
+      flex-wrap: wrap;
+    }
+    
+    .hero-rating {
+      background: rgba(232, 73, 15, 0.15);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    .hero-synopsis {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 1.05rem;
+      margin-bottom: 32px;
+      max-width: 800px;
+    }
+
+    .hero-trailer {
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 16/9;
+      width: 100%;
+      max-width: 700px;
+      border: 1px solid var(--border);
+      margin-top: auto;
+      background: var(--card);
+    }
+
+    .hero-trailer iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* ── SHOWTIMES SECTION ── */
+    .showtimes-section {
+      padding: 60px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .showtimes-header {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 40px;
+    }
+
+    .cinema-block {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 32px;
+    }
+
+    .cinema-block-header {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      color: var(--white);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+
+    .location-group {
+      margin-bottom: 32px;
+    }
+    .location-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .location-name {
+      font-weight: 600;
+      color: var(--white);
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .format-group {
+      display: flex;
+      align-items: stretch;
+      margin-bottom: 16px;
+      gap: 20px;
+    }
+    .format-group:last-child { margin-bottom: 0; }
+
+    .format-label {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 90px;
+    }
+
+    .times-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .time-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--white);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .time-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(232, 73, 15, 0.05);
+    }
+    
+    @media (max-width: 900px) {
+      .movie-hero {
+        flex-direction: column;
+        padding: 40px 24px;
+      }
+      .hero-poster {
+        flex: 0 0 auto;
+        max-width: 300px;
+        margin: 0 auto;
+      }
+      .showtimes-section {
+        padding: 40px 24px;
+      }
+      .format-group {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .format-label {
+        align-self: flex-start;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html" class="logo">
+      <img src="favicon.png" alt="Cinemart">
+      Cinemart
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html" >Home</a></li>
+      <li><a href="movies.html">Movies</a></li>
+      <li><a href="cinemas.html">Cinemas</a></li>
+      <li><a href="tickets.html">Tickets</a></li>
+      <li><a href="#">Account</a></li>
+    </ul>
+  </nav>
+
+    <!-- MOVIE DETAILS HERO -->
+  <section class="movie-hero" id="movieHero">
+    <!-- Rendered dynamically via JS -->
+  </section>
+
+  <!-- MOVIE SHOWTIMES -->
+  <section class="showtimes-section">
+    <h2 class="showtimes-header">Available Showtimes</h2>
+    <div id="movieShowtimes">
+      <!-- Rendered dynamically via JS -->
+    </div>
+  </section>
+
+
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <span class="logo">Cinemart</span>
+        <p>Book your favourite movie tickets instantly, anywhere, and anytime with ease.</p>
+        <div class="social-links">
+          <a href="#" title="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+            </svg>
+          </a>
+          <a href="#" title="Facebook">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+            </svg>
+          </a>
+          <a href="#" title="X / Twitter">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+          </a>
+          <a href="#" title="TikTok">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z" />
+            </svg>
+          </a>
+          <a href="#" title="Telegram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.596.295l.215-3.048 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.822 1.044z" />
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-payments">
+        <h4>Accepted Payments</h4>
+        <div class="payment-icons">
+          <img src="aba.png" alt="ABA Pay" title="ABA Pay">
+          <img src="acleda.jpg" alt="ACLEDA Pay" title="ACLEDA Pay">
+          <img src="mastercard_logo.webp" alt="Mastercard" title="Mastercard">
+          <img src="visa.png" alt="Visa" title="Visa">
+          <img src="KHQR_Logo.png" alt="KHQR" title="KHQR">
+        </div>
+      </div>
+
+      <div class="footer-links-group">
+        <div class="footer-col">
+          <h4>Features</h4>
+          <ul>
+            <li><a href="#">Book tickets</a></li>
+            <li><a href="#">Review movies</a></li>
+            <li><a href="#">Find cinemas</a></li>
+            <li><a href="#">Trailers</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Discover</h4>
+          <ul>
+            <li><a href="#">New releases</a></li>
+            <li><a href="#">Coming soon</a></li>
+            <li><a href="#">Top rated</a></li>
+            <li><a href="#">Cinema events</a></li>
+            <li><a href="#">Genres</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="#">Help centre</a></li>
+            <li><a href="#">Support chat</a></li>
+            <li><a href="#">Refund policy</a></li>
+            <li><a href="#">Legal</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 Cinemart. All rights reserved.</span>
+      <span>Privacy · Terms · Cookies</span>
+    </div>
+  </footer>
+
+  <script>
+        const moviesData = [
+      {
+        id: 1,
+        title: "Avatar: Fire and Ash",
+        genre: "Sci-Fi / Adventure",
+        rating: 8.9,
+        duration: "192 min",
+        image: "avatar-fire-and-ash.jpg",
+        trailer: "https://www.youtube.com/embed/d9MyW72ELq0",
+        synopsis: "Return to Pandora in this breathtaking continuation of the Avatar saga. Jake Sully and Neytiri must face a new, dangerous Na'vi clan known as the Ash People. As a new conflict erupts, alliances will be tested in the ultimate stunning battle for survival.",
+        cinemas: [
+          { name: "SuperShow Cinema", locations: ["TK", "FunMall"], theatreTypes: ["2D", "3D", "4DX"] },
+          { name: "MultiplexCity", locations: ["Aeon1"], theatreTypes: ["2D", "3D", "ScreenX"] }
+        ],
+        releaseDate: "2025-12-19"
+      },
+      {
+        id: 2,
+        title: "Zootopia 2",
+        genre: "Animation / Comedy",
+        rating: 8.1,
+        duration: "115 min",
+        image: "zootopia2.jpeg",
+        trailer: "https://www.youtube.com/embed/BjkIOU5PhyQ",
+        synopsis: "Judy Hopps and Nick Wilde are back on the beat! When a mysterious new threat emerges in the animal metropolis, the dynamic duo must travel beyond the city limits into uncharted ecosystems to crack their biggest case yet.",
+        cinemas: [
+          { name: "MultiplexCity", locations: ["Aeon1", "Aeon2", "KMall"], theatreTypes: ["2D", "3D"] },
+          { name: "Happy Cinema", locations: ["Aeon2", "Sorya Mall"], theatreTypes: ["2D", "4DX", "ScreenX"] }
+        ],
+        releaseDate: "2025-11-26"
+      },
+      {
+        id: 3,
+        title: "Project Hail Mary",
+        genre: "Sci-Fi / Drama",
+        rating: 9.0,
+        duration: "145 min",
+        image: "project-hail-mary.avif",
+        trailer: "https://www.youtube.com/embed/m08TxIsFTRI",
+        synopsis: "Ryland Grace is the sole survivor on a desperate, last-chance mission—and if he fails, humanity and the earth itself will perish. Except that right now, he doesn't know that. He can't even remember his own name, let alone the nature of his assignment or how to complete it.",
+        cinemas: [
+          { name: "SuperShow Cinema", locations: ["Aeon1", "FunMall"], theatreTypes: ["2D", "3D", "4DX", "ScreenX"] },
+          { name: "MultiplexCity", locations: ["Aeon3", "KMall"], theatreTypes: ["2D", "3D"] },
+          { name: "Happy Cinema", locations: ["Aeon3", "Noro Mall"], theatreTypes: ["2D", "3D", "4DX"] }
+        ],
+        releaseDate: "2025-12-05"
+      },
+      {
+        id: 4,
+        title: "Hoppers",
+        genre: "Animation / Adventure",
+        rating: 7.8,
+        duration: "102 min",
+        image: "hoppers.jpg",
+        trailer: "https://www.youtube.com/embed/PypDSyIRRSs",
+        synopsis: "A brilliant young girl discovers a way to transfer her consciousness into advanced animal-like robots. She uses her new skills to go deep undercover and uncover a conspiracy threatening her vibrant city.",
+        cinemas: [
+          { name: "Happy Cinema", locations: ["Aeon2", "Sorya Mall", "Noro Mall"], theatreTypes: ["2D", "3D"] },
+          { name: "MultiplexCity", locations: ["Aeon2"], theatreTypes: ["2D", "3D", "ScreenX"] }
+        ],
+        releaseDate: "2025-10-15"
+      },
+      {
+        id: 5,
+        title: "GOAT",
+        genre: "Animation / Sports / Comedy",
+        rating: "TBA",
+        duration: "98 min",
+        image: "goat.jpg",
+        trailer: "https://www.youtube.com/embed/5r-7eWDBc40?si=_6j7G5_FuXdNE9UL",
+        synopsis: "In an all-animal world, a small goat named Will dreams of becoming the 'Greatest of All Time' in roarball—a high-intensity sport dominated by massive animals. Joining his hometown team, the Vineland Thorns, Will must prove that heart and determination are more important than size.",
+        cinemas: [
+          { name: "SuperShow Cinema", locations: ["TK", "Aeon1"], theatreTypes: ["2D", "4DX"] },
+          { name: "MultiplexCity", locations: ["KMall"], theatreTypes: ["2D"] }
+        ],
+        releaseDate: "2026-02-13"
+      },
+      {
+        id: 6,
+        title: "Crime 101",
+        genre: "Crime / Thriller",
+        rating: "TBA",
+        duration: "140 min",
+        image: "Crime_101_(2026_film)_poster.jpg",
+        trailer: "https://www.youtube.com/embed/f5y-cziwmMw?si=2_SovMEdTLISUDG9",
+        synopsis: "Chris Hemsworth stars as an elusive high-level jewel thief targeting Los Angeles' 101 freeway. When his final heist goes sideways, he must collaborate with an insurance broker (Halle Berry) while a relentless detective (Mark Ruffalo) closes in.",
+        cinemas: [
+          { name: "SuperShow Cinema", locations: ["FunMall"], theatreTypes: ["2D", "ScreenX"] },
+          { name: "MultiplexCity", locations: ["Aeon1"], theatreTypes: ["2D", "3D"] }
+        ],
+        releaseDate: "2026-02-13"
+      },
+      {
+        id: 7,
+        title: "Peaky Blinders: The Immortal Man",
+        genre: "Crime / Drama",
+        rating: "TBA",
+        duration: "112 min",
+        image: "peakyblinder.jpg",
+        trailer: "https://www.youtube.com/embed/lcvUGs3xaDM?si=lqrLf6i2_XDQhEKo",
+        synopsis: "The Shelby family returns to face their most dangerous reckoning yet in the middle of World War II. Cillian Murphy reprises his role as Thomas Shelby, drawn out of a self-imposed exile to protect his legacy and his bloodline.",
+        cinemas: [
+          { name: "MultiplexCity", locations: ["Aeon3"], theatreTypes: ["2D", "3D", "ScreenX"] }
+        ],
+        releaseDate: "2026-03-20"
+      },
+      {
+        id: 8,
+        title: "Scream 7",
+        genre: "Horror / Slasher",
+        rating: "TBA",
+        duration: "114 min",
+        image: "scream7.jpg",
+        trailer: "https://www.youtube.com/embed/UJrghaPJ0RY?si=uNdE9_QfJ2nTe02j",
+        synopsis: "Sidney Prescott (Neve Campbell) is back in the quiet suburbs where she's built a new life. But when a new Ghostface killer begins targeting her daughter, she must unite with legacy survivors to end the terror once and for all.",
+        cinemas: [
+          { name: "Happy Cinema", locations: ["Aeon2", "Noro Mall"], theatreTypes: ["2D", "4DX"] }
+        ],
+        releaseDate: "2026-02-27"
+      }
+    ];
+
+    function renderMovieDetails() {
+      const params = new URLSearchParams(window.location.search);
+      let movieId = parseInt(params.get('id'));
+      
+      // Default to movie 1 if none provided
+      if (!movieId || isNaN(movieId)) movieId = 1;
+
+      const movie = moviesData.find(m => m.id === movieId);
+      if (!movie) return;
+
+      document.title = movie.title + " — Cinemart";
+
+      // Render Hero
+      const hero = document.getElementById('movieHero');
+      hero.innerHTML = `
+        <div class="hero-poster">
+          <img src="${movie.image}" alt="${movie.title}">
+        </div>
+        <div class="hero-info">
+          <h1 class="hero-title">${movie.title}</h1>
+          <div class="hero-meta">
+            <span class="hero-rating">★ ${movie.rating}</span>
+            <span>${movie.duration}</span>
+            <span>|</span>
+            <span>${movie.genre}</span>
+            <span>|</span>
+            <span>Release: ${movie.releaseDate}</span>
+          </div>
+          <p class="hero-synopsis">${movie.synopsis}</p>
+          <div class="hero-trailer">
+            <iframe src="${movie.trailer}?autoplay=0" allowfullscreen></iframe>
+          </div>
+        </div>
+      `;
+
+      // Render Showtimes
+      const showtimesContainer = document.getElementById('movieShowtimes');
+      
+      const fCinema = params.get('cinema');
+      const fLocation = params.get('location');
+      const fTheatre = params.get('theatre');
+      const fDate = params.get('date');
+      
+      if (fDate) {
+         document.querySelector('.showtimes-header').textContent = `Available Showtimes for ${fDate}`;
+      }
+
+      let stHtml = '';
+
+      // Mock random times
+      const mockTimes = ['09:30 AM', '11:15 AM', '01:45 PM', '04:20 PM', '07:00 PM', '09:45 PM'];
+
+      movie.cinemas.forEach(cinema => {
+        if (fCinema && cinema.name !== fCinema) return;
+
+        let hasValidLocations = false;
+        let cinemaHtml = `
+          <div class="cinema-block">
+            <h3 class="cinema-block-header">${cinema.name}</h3>
+        `;
+
+        cinema.locations.forEach(loc => {
+          if (fLocation && loc !== fLocation) return;
+          
+          let hasValidTheatres = false;
+          let locHtml = `<div class="location-group">
+            <div class="location-name">📍 ${loc} Branch</div>
+          `;
+
+          cinema.theatreTypes.forEach(type => {
+            if (fTheatre && type !== fTheatre) return;
+
+            hasValidTheatres = true;
+            hasValidLocations = true;
+
+            // Randomly pick a few times for realism
+            const timesPool = mockTimes.filter(() => Math.random() > 0.3);
+            if (timesPool.length === 0) timesPool.push('07:00 PM'); // Guarantee at least 1 time
+
+            locHtml += `
+              <div class="format-group">
+                <div class="format-label">${type}</div>
+                <div class="times-list">
+                  ${timesPool.map((t, idx) => {
+                    const hallName = (type === '2D' || type === '3D') ? `Hall ${idx + 1}` : `${type} Hall`;
+                    return `<button class="time-btn" onclick="window.location.href='booking.html?id=${movie.id}&movie_title=${encodeURIComponent(movie.title)}&cinema=${encodeURIComponent(cinema.name)}&location=${encodeURIComponent(loc)}&type=${encodeURIComponent(type)}&hall=${encodeURIComponent(hallName)}&time=${encodeURIComponent(t)}&date=${encodeURIComponent(fDate || 'Today, 31 Mar')}'"><span style="display:block; font-size: 0.7em; opacity: 0.7; margin-bottom: 2px;">${hallName}</span>${t}</button>`;
+                  }).join('')}
+                </div>
+              </div>
+            `;
+          });
+          locHtml += `</div>`;
+          
+          if (hasValidTheatres) {
+             cinemaHtml += locHtml;
+          }
+        });
+        cinemaHtml += `</div>`;
+
+        if (hasValidLocations) {
+           stHtml += cinemaHtml;
+        }
+      });
+
+      if (stHtml === '') {
+        stHtml = '<p style="color: var(--muted);">No showtimes found for the selected filters.</p>';
+      }
+
+      showtimesContainer.innerHTML = stHtml;
+    }
+
+    renderMovieDetails();
+
+  </script>
+</body>
+</html>

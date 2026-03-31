@@ -1,0 +1,343 @@
+const fs = require('fs');
+
+const index = fs.readFileSync('index.html', 'utf8');
+
+const navMatch = index.match(/<nav>[\s\S]*?<\/nav>/);
+let nav = navMatch ? navMatch[0] : '';
+nav = nav.replace('<li><a href="#">Account</a></li>', '<li><a href="account.html" class="active">Account</a></li>');
+nav = nav.replace('class="active"', ''); // remove active from home
+
+const footerMatch = index.match(/<footer>[\s\S]*?<\/footer>/);
+let footer = footerMatch ? footerMatch[0] : '';
+footer = footer.replace('<li><a href="#">Privacy Policy</a></li>', '<li><a href="privacy.html">Privacy Policy</a></li>');
+footer = footer.replace('<li><a href="#">Terms of Service</a></li>', '<li><a href="terms.html">Terms of Service</a></li>');
+
+const accountContent = `
+  <section class="account-section">
+    <div class="account-container">
+      <div class="account-header">
+        <div class="profile-avatar">
+          <span id="avatarInitial">U</span>
+        </div>
+        <div class="profile-info">
+          <h1 id="userName">User Name</h1>
+          <p id="userEmail">Loading email...</p>
+          <span class="badge">Verified Member</span>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <!-- Profile Settings -->
+        <div class="settings-card">
+          <div class="card-header">
+            <h3>Personal Information</h3>
+            <p>Update your public profile details.</p>
+          </div>
+          <form id="profileForm" class="settings-form">
+            <div class="input-group">
+              <label>Full Name</label>
+              <input type="text" id="displayNameInput" placeholder="Enter your name">
+            </div>
+            <div class="input-group">
+              <label>Email Address</label>
+              <input type="email" id="emailInput" readonly disabled style="opacity: 0.6; cursor: not-allowed;">
+              <small>Email is used for ticket delivery and cannot be changed.</small>
+            </div>
+            <button type="submit" class="btn-primary">Update Profile</button>
+          </form>
+        </div>
+
+        <!-- Security -->
+        <div class="settings-card">
+          <div class="card-header">
+            <h3>Account Security</h3>
+            <p>Manage your password and authentication.</p>
+          </div>
+          <div class="security-items">
+            <div class="security-item">
+              <div class="item-text">
+                <strong>Password Reset</strong>
+                <p>We'll send a reset link to your email.</p>
+              </div>
+              <button onclick="handlePasswordReset()" class="btn-ghost">Send Link</button>
+            </div>
+            <div class="security-item danger">
+              <div class="item-text">
+                <strong>Delete Account</strong>
+                <p>Permanently remove your account data.</p>
+              </div>
+              <button onclick="handleDeleteAccount()" class="btn-outline-danger">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- App Preferences -->
+        <div class="settings-card">
+          <div class="card-header">
+            <h3>App Preferences</h3>
+            <p>Customize your movie-going experience.</p>
+          </div>
+          <div class="preference-items">
+            <div class="pref-item">
+              <span>Booking Notifications</span>
+              <label class="switch">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="pref-item">
+              <span>Marketing Emails</span>
+              <label class="switch">
+                <input type="checkbox">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="settings-card secondary">
+          <h3>Quick Links</h3>
+          <div class="quick-links">
+            <a href="tickets.html" class="quick-link">
+              <span class="icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9V5.2a.8.8 0 0 1 .8-.8h18.4a.8.8 0 0 1 .8.8V9M2 15v3.8a.8.8 0 0 0 .8.8h18.4a.8.8 0 0 0 .8-.8V15M2 9c2 0 2 6 0 6M22 9c-2 0-2 6 0 6M9 9h6m-6 6h6"/></svg>
+              </span>
+              <span>My Tickets</span>
+            </a>
+            <a href="privacy.html" class="quick-link">
+              <span class="icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM12 8v4m0 4h.01"/></svg>
+              </span>
+              <span>Privacy Policy</span>
+            </a>
+            <button onclick="handleLogout()" class="quick-link logout">
+              <span class="icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+              </span>
+              <span>Log Out</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feedback Overlay -->
+  <div id="feedbackToast" class="toast">
+    <p id="toastMessage">Success!</p>
+  </div>
+`;
+
+const css = `
+  html { -ms-overflow-style: none; scrollbar-width: none; }
+  html::-webkit-scrollbar { display: none; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--black); color: var(--text); line-height: 1.6; overflow-x: hidden; }
+  .account-section { padding: 120px 60px; background: var(--black); min-height: 100vh; }
+  .account-container { max-width: 1200px; margin: 0 auto; }
+  
+  .account-header { display: flex; align-items: center; gap: 32px; margin-bottom: 60px; padding: 40px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 24px; backdrop-filter: blur(20px); }
+  .profile-avatar { width: 100px; height: 100px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; font-family: 'Syne', sans-serif; color: #fff; box-shadow: 0 10px 40px rgba(232, 73, 15, 0.3); }
+  .profile-info h1 { font-family: 'Syne', sans-serif; font-size: 2.2rem; color: #fff; margin-bottom: 4px; }
+  .profile-info #userEmail { color: var(--muted); font-size: 1.1rem; margin-bottom: 12px; }
+  .badge { background: rgba(232, 73, 15, 0.15); color: var(--accent); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid rgba(232, 73, 15, 0.3); }
+
+  .settings-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px; }
+  .settings-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 24px; padding: 40px; transition: transform 0.3s; }
+  .settings-card:hover { border-color: rgba(255,255,255,0.1); }
+  .card-header { margin-bottom: 32px; }
+  .card-header h3 { font-family: 'Syne', sans-serif; color: #fff; font-size: 1.25rem; margin-bottom: 8px; }
+  .card-header p { color: var(--muted); font-size: 0.9rem; }
+
+  .settings-form { display: flex; flex-direction: column; gap: 20px; }
+  .input-group { display: flex; flex-direction: column; gap: 8px; }
+  .input-group label { color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+  .input-group input, .settings-select { background: #111; border: 1px solid var(--border); border-radius: 12px; padding: 16px; color: #fff; font-size: 1rem; outline: none; transition: border-color 0.2s; width: 100%; box-sizing: border-box; }
+  .input-group input:focus { border-color: var(--accent); }
+  .input-group small { color: var(--muted); font-size: 0.75rem; margin-top: 4px; }
+
+  .security-items, .preference-items { display: flex; flex-direction: column; gap: 24px; }
+  .security-item, .pref-item { display: flex; align-items: center; justify-content: space-between; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .security-item:last-child, .pref-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .item-text strong { color: #fff; display: block; margin-bottom: 4px; }
+  .item-text p { color: var(--muted); font-size: 0.85rem; }
+  
+  .btn-outline-danger { background: transparent; border: 1px solid #ff4b4b; color: #ff4b4b; padding: 12px 24px; border-radius: 10px; cursor: pointer; transition: all 0.2s; font-weight: 600; }
+  .btn-outline-danger:hover { background: #ff4b4b; color: #fff; }
+
+  /* Switch UI */
+  .switch { position: relative; display: inline-block; width: 52px; height: 30px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; inset: 0; background-color: #222; transition: .4s; border-radius: 34px; }
+  .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+  input:checked + .slider { background-color: var(--accent); }
+  input:checked + .slider:before { transform: translateX(22px); }
+
+  .quick-links { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+  .quick-link { display: flex; align-items: center; gap: 16px; padding: 16px 24px; background: rgba(255,255,255,0.05); border-radius: 12px; text-decoration: none; color: #fff; font-weight: 600; transition: all 0.2s; border: 1px solid transparent; }
+  .quick-link .icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: var(--muted); transition: color 0.2s; }
+  .quick-link .icon svg { width: 100%; height: 100%; }
+  .quick-link:hover { background: rgba(255,255,255,0.1); border-color: var(--border); transform: translateX(5px); }
+  .quick-link:hover .icon { color: #fff; }
+  .quick-link.logout { background: rgba(232, 73, 15, 0.05); color: var(--accent); border-color: rgba(232, 73, 15, 0.1); width: 100%; text-align: left; border: 1px solid rgba(232, 73, 15, 0.1); }
+  .quick-link.logout .icon { color: var(--accent); }
+  .quick-link.logout:hover { background: var(--accent); color: #fff; }
+  .quick-link.logout:hover .icon { color: #fff; }
+
+  .toast { position: fixed; bottom: 40px; right: 40px; background: #fff; color: #000; padding: 16px 32px; border-radius: 12px; font-weight: 700; transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10000; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* FOOTER STYLES */
+  footer { background: var(--dark); border-top: 1px solid var(--border); padding: 52px 60px 36px; margin-top: 0; }
+  .footer-grid { display: grid; grid-template-columns: 1.2fr 1.5fr auto; gap: 40px; margin-bottom: 48px; }
+  .footer-payments h4 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--white); margin-bottom: 16px; }
+  .payment-icons { display: flex; gap: 12px; flex-wrap: wrap; }
+  .payment-icons img { height: 36px; width: auto; border-radius: 4px; transition: transform 0.2s; }
+  .payment-icons img:hover { transform: translateY(-2px); }
+  .footer-links-group { display: flex; gap: 60px; justify-content: flex-end; }
+  .footer-brand .logo { font-size: 1.2rem; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+  .footer-brand p { font-size: 0.82rem; color: var(--muted); line-height: 1.65; max-width: 260px; margin-bottom: 20px; }
+  .social-links { display: flex; gap: 12px; }
+  .social-links a { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: border-color 0.2s, color 0.2s; }
+  .social-links a:hover { border-color: var(--accent); color: var(--accent); }
+  .footer-col h4 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--white); margin-bottom: 16px; }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li+li { margin-top: 10px; }
+  .footer-col ul a { text-decoration: none; font-size: 0.82rem; color: var(--muted); transition: color 0.2s; }
+  .footer-col ul a:hover { color: var(--text); }
+  .footer-bottom { display: flex; align-items: center; justify-content: space-between; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.78rem; color: var(--muted); }
+  .footer-bottom a { color: inherit; text-decoration: none; transition: color 0.2s; }
+  .footer-bottom a:hover { color: var(--white); }
+
+  @media (max-width: 992px) {
+    .settings-grid { grid-template-columns: 1fr; }
+    .account-section { padding: 80px 24px; }
+    .footer-grid { grid-template-columns: 1fr; }
+    .footer-links-group { justify-content: flex-start; flex-wrap: wrap; gap: 32px; }
+  }
+`;
+
+const js = `
+  import { auth } from './firebase-config.js';
+  import { 
+    onAuthStateChanged, 
+    updateProfile, 
+    sendPasswordResetEmail, 
+    signOut,
+    deleteUser 
+  } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+  const feedbackToast = document.getElementById('feedbackToast');
+  const toastMessage = document.getElementById('toastMessage');
+
+  function showToast(msg, isError = false) {
+    toastMessage.textContent = msg;
+    feedbackToast.style.background = isError ? "#ff4b4b" : "#fff";
+    feedbackToast.style.color = isError ? "#fff" : "#000";
+    feedbackToast.classList.add('show');
+    setTimeout(() => feedbackToast.classList.remove('show'), 4000);
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      document.getElementById('userName').textContent = user.displayName || 'Cinema Lover';
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('displayNameInput').value = user.displayName || '';
+      document.getElementById('emailInput').value = user.email;
+      document.getElementById('avatarInitial').textContent = (user.displayName || user.email).charAt(0).toUpperCase();
+    }
+  });
+
+  document.getElementById('profileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const newName = document.getElementById('displayNameInput').value;
+    try {
+      await updateProfile(auth.currentUser, { displayName: newName });
+      showToast("Profile updated successfully!");
+      document.getElementById('userName').textContent = newName;
+      document.getElementById('avatarInitial').textContent = newName.charAt(0).toUpperCase();
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  });
+
+  window.handlePasswordReset = async () => {
+    try {
+      await sendPasswordResetEmail(auth, auth.currentUser.email);
+      showToast("Password reset link sent to your email!");
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  };
+
+  window.handleLogout = () => {
+    signOut(auth).then(() => {
+      window.location.href = 'auth.html';
+    });
+  };
+
+  window.handleDeleteAccount = async () => {
+    if (confirm("Are you sure? This action is permanent and all your tickets will be lost.")) {
+      try {
+        await deleteUser(auth.currentUser);
+        window.location.href = 'auth.html';
+      } catch (err) {
+        showToast("Session expired. Please re-login to delete account.", true);
+      }
+    }
+  };
+`;
+
+const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings — Cinemart</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <script type="module" src="auth-guard.js"></script>
+    <script type="module" src="legals-init.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --black: #000000;
+            --dark: #0d0d0d;
+            --card: #1a1a1a;
+            --border: #2a2a2a;
+            --text: #ffffff;
+            --muted: #b0b0b8;
+            --accent: #e8490f;
+            --white: #ffffff;
+        }
+        ::-webkit-scrollbar { display: none; }
+        html { -ms-overflow-style: none; scrollbar-width: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--black); color: var(--text); line-height: 1.6; overflow-x: hidden; }
+        nav { position: sticky; top: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 0 60px; height: 64px; background: rgba(0,0,0,0.95); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+        .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.35rem; color: var(--white); letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .logo img { height: 28px; width: auto; }
+        .nav-links { display: flex; gap: 36px; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--muted); font-size: 0.875rem; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover { color: #fff; }
+        .nav-links a.active { color: #fff; }
+        .btn-ghost { background: rgba(255, 255, 255, 0.08); color: var(--text); border: 1px solid var(--border); padding: 12px 28px; border-radius: 8px; cursor: pointer; font-size: 0.875rem; transition: all 0.2s; text-decoration: none; }
+        .btn-primary { background: var(--accent); color: #fff; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(232, 73, 15, 0.4); }
+
+        ${css}
+    </style>
+</head>
+<body>
+    ${nav}
+    ${accountContent}
+    ${footer}
+
+    <script type="module">
+        ${js}
+    </script>
+</body>
+</html>`;
+
+fs.writeFileSync('account.html', html);
+console.log('account.html built successfully!');

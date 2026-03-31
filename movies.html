@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Now in Theatres — Cinemart</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <script type="module" src="auth-guard.js"></script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --black: #000000;
+      --dark: #0d0d0d;
+      --card: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #ffffff;
+      --muted: #b0b0b8;
+      --accent: #e8490f;
+      --accent2: #f5a623;
+      --white: #ffffff;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--black);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Hide all scrollbars */
+    ::-webkit-scrollbar {
+      display: none;
+    }
+
+    html {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* ── TRAILER MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(24px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 40px;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-container {
+      width: 100%;
+      max-width: 1000px;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      transform: scale(0.9);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-overlay.active .modal-container {
+      transform: scale(1);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 24px;
+      right: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: var(--accent);
+      transform: rotate(90deg);
+    }
+
+    .modal-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .btn-trailer {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      margin-top: 8px;
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-trailer:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: white;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 60px;
+      height: 64px;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.35rem;
+      color: var(--white);
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo img {
+      height: 28px;
+      width: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.875rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--white);
+    }
+
+    .nav-links a.active {
+      color: var(--white);
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      padding: 60px 60px 40px;
+      background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #050505 100%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-header h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2rem, 4vw, 3rem);
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+      color: var(--white);
+    }
+
+    .page-header p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* ── FILTERS SECTION ── */
+    .filters-section {
+      padding: 40px 60px;
+      border-bottom: 1px solid var(--border);
+      background: var(--dark);
+    }
+
+    .filters-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .filter-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--white);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .custom-dropdown {
+      position: relative;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      user-select: none;
+    }
+
+    .dropdown-selected {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .dropdown-selected:hover {
+      border-color: var(--accent);
+    }
+
+    .custom-dropdown.active .dropdown-selected {
+      border-color: var(--accent);
+      background: rgba(232, 73, 15, 0.05);
+      border-radius: 8px 8px 0 0;
+      border-bottom-color: transparent;
+    }
+
+    .dropdown-selected .chevron {
+      border: solid var(--muted);
+      border-width: 0 2px 2px 0;
+      display: inline-block;
+      padding: 3px;
+      transform: rotate(45deg);
+      transition: transform 0.2s;
+      margin-right: 4px;
+      margin-bottom: 2px;
+    }
+
+    .custom-dropdown.active .chevron {
+      transform: rotate(-135deg);
+      margin-bottom: -4px;
+    }
+
+    .dropdown-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      z-index: 100;
+      display: none;
+      max-height: 240px;
+      overflow-y: auto;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .custom-dropdown.active .dropdown-options {
+      display: block;
+      animation: fadeDown 0.2s ease;
+    }
+
+    .dropdown-options div {
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      color: var(--muted);
+    }
+
+    .dropdown-options div:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--white);
+    }
+
+    .dropdown-options div.selected {
+      background: rgba(232, 73, 15, 0.15);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    @keyframes fadeDown {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── DATE PICKER ── */
+    .date-picker-section {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 1px solid var(--border);
+    }
+
+    .date-picker-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--white);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .date-picker {
+      display: grid;
+      grid-template-columns: repeat(14, 1fr);
+      gap: 12px;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 8px;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .date-btn {
+      background: var(--card);
+      border: 2px solid var(--border);
+      color: var(--text);
+      padding: 16px 14px;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      text-align: center;
+    }
+
+    .date-btn:hover {
+      border-color: var(--accent);
+      background: rgba(232, 73, 15, 0.1);
+    }
+
+    .date-btn.active {
+      border-color: var(--accent);
+      background: rgba(232, 73, 15, 0.15);
+      color: var(--accent);
+    }
+
+    .date-btn-day {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .date-btn.active .date-btn-day {
+      color: var(--accent);
+    }
+
+    .date-btn-date {
+      font-size: 1.5rem;
+      font-weight: 800;
+      font-family: 'Syne', sans-serif;
+    }
+
+    .date-btn-month {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .date-btn.active .date-btn-month {
+      color: var(--accent);
+    }
+
+    /* ── MOVIES GRID ── */
+    .movies-container {
+      padding: 60px;
+    }
+
+    .movies-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 36px;
+    }
+
+    .movies-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.8rem;
+      letter-spacing: -0.03em;
+      color: var(--white);
+    }
+
+    .movies-count {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .movies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 24px;
+    }
+
+    .movie-card {
+      background: var(--card);
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      transition: transform 0.25s, box-shadow 0.25s;
+      cursor: pointer;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+    }
+
+    .movie-card:hover .poster-overlay {
+      opacity: 1;
+    }
+
+    .card-poster {
+      position: relative;
+      aspect-ratio: 3/4;
+      overflow: hidden;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    }
+
+    .card-poster img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s;
+    }
+
+    .movie-card:hover .card-poster img {
+      transform: scale(1.04);
+    }
+
+    .poster-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, transparent 50%);
+      display: flex;
+      align-items: flex-end;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .poster-overlay .btn-primary {
+      width: 100%;
+      text-align: center;
+    }
+
+    .card-rating {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--accent2);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .card-body {
+      padding: 18px 20px 22px;
+    }
+
+    .card-genre {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .card-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.6;
+      display: -webkit-box;
+      line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .no-results h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary:hover {
+      background: #d43a00;
+      transform: translateY(-1px);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark);
+      border-top: 1px solid var(--border);
+      padding: 52px 60px 36px;
+      margin-top: 80px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1.5fr auto;
+      gap: 40px;
+      margin-bottom: 48px;
+    }
+
+    .footer-payments h4 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 16px;
+    }
+
+    .payment-icons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .payment-icons img {
+      height: 36px;
+      width: auto;
+      border-radius: 4px;
+      transition: transform 0.2s;
+    }
+
+    .payment-icons img:hover {
+      transform: translateY(-2px);
+    }
+
+    .footer-links-group {
+      display: flex;
+      gap: 60px;
+      justify-content: flex-end;
+    }
+
+    .footer-brand .logo {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .footer-brand p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 260px;
+      margin-bottom: 20px;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 12px;
+    }
+
+    .social-links a {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .social-links a:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .footer-col h4 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 16px;
+    }
+
+    .footer-col ul {
+      list-style: none;
+    }
+
+    .footer-col ul li+li {
+      margin-top: 10px;
+    }
+
+    .footer-col ul a {
+      text-decoration: none;
+      font-size: 0.82rem;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+
+    .footer-col ul a:hover {
+      color: var(--text);
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav {
+        padding: 0 24px;
+      }
+
+      .page-header {
+        padding: 40px 24px 30px;
+      }
+
+      .filters-section {
+        padding: 30px 24px;
+      }
+
+      .movies-container {
+        padding: 40px 24px;
+      }
+
+      .filters-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .movies-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      }
+
+      footer {
+        padding: 40px 24px 28px;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-links-group {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 40px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .movies-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="logo">
+      <img src="favicon.png" alt="Cinemart">
+      Cinemart
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="movies.html" class="active">Movies</a></li>
+      <li><a href="cinemas.html">Cinemas</a></li>
+      <li><a href="tickets.html">Tickets</a></li>
+      <li><a href="#">Account</a></li>
+    </ul>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <section class="page-header">
+    <h1>Now in Theatres</h1>
+    <p>Book your tickets for all movies currently showing across our cinemas</p>
+  </section>
+
+  <!-- FILTERS -->
+  <section class="filters-section">
+    <span class="filters-title">Filter Movies</span>
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label class="filter-label">Cinema</label>
+        <div class="custom-dropdown" id="cinemaDropdown" data-value="">
+          <div class="dropdown-selected"><span>All Cinemas</span> <i class="chevron"></i></div>
+          <div class="dropdown-options">
+            <div data-value="" class="selected">All Cinemas</div>
+            <div data-value="SuperShow Cinema">SuperShow Cinema</div>
+            <div data-value="MultiplexCity">MultiplexCity</div>
+            <div data-value="Happy Cinema">Happy Cinema</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Location</label>
+        <div class="custom-dropdown" id="locationDropdown" data-value="">
+          <div class="dropdown-selected"><span>All Locations</span> <i class="chevron"></i></div>
+          <div class="dropdown-options">
+            <div data-value="" class="selected">All Locations</div>
+            <div data-value="TK">TK</div>
+            <div data-value="FunMall">FunMall</div>
+            <div data-value="Aeon1">Aeon1</div>
+            <div data-value="Aeon2">Aeon2</div>
+            <div data-value="Aeon3">Aeon3</div>
+            <div data-value="KMall">KMall</div>
+            <div data-value="Sorya Mall">Sorya Mall</div>
+            <div data-value="Noro Mall">Noro Mall</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Theatre Type</label>
+        <div class="custom-dropdown" id="theatreDropdown" data-value="">
+          <div class="dropdown-selected"><span>All Types</span> <i class="chevron"></i></div>
+          <div class="dropdown-options">
+            <div data-value="" class="selected">All Types</div>
+            <div data-value="2D">2D</div>
+            <div data-value="3D">3D</div>
+            <div data-value="4DX">4DX</div>
+            <div data-value="ScreenX">ScreenX</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="date-picker-section">
+      <label class="date-picker-label">Select Date</label>
+      <div class="date-picker" id="datePicker">
+        <!-- Date buttons will be populated here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- MOVIES GRID -->
+  <section class="movies-container">
+    <div class="movies-header">
+      <h2 class="movies-title">Featured Movies</h2>
+      <span class="movies-count"><span id="movieCount">0</span> movies showing</span>
+    </div>
+
+    <div class="movies-grid" id="moviesGrid">
+      <!-- Movies will be populated here -->
+    </div>
+
+    <div id="noResults" class="no-results" style="display: none;">
+      <h3>No movies found</h3>
+      <p>Try adjusting your filters</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <span class="logo">Cinemart</span>
+        <p>Book your favourite movie tickets instantly, anywhere, and anytime with ease.</p>
+        <div class="social-links">
+          <a href="#" title="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+            </svg>
+          </a>
+          <a href="#" title="Facebook">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+            </svg>
+          </a>
+          <a href="#" title="X / Twitter">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+          </a>
+          <a href="#" title="TikTok">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z" />
+            </svg>
+          </a>
+          <a href="#" title="Telegram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.596.295l.215-3.048 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.822 1.044z" />
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-payments">
+        <h4>Accepted Payments</h4>
+        <div class="payment-icons">
+          <img src="aba.png" alt="ABA Pay" title="ABA Pay">
+          <img src="acleda.jpg" alt="ACLEDA Pay" title="ACLEDA Pay">
+          <img src="mastercard_logo.webp" alt="Mastercard" title="Mastercard">
+          <img src="visa.png" alt="Visa" title="Visa">
+          <img src="KHQR_Logo.png" alt="KHQR" title="KHQR">
+        </div>
+      </div>
+
+      <div class="footer-links-group">
+        <div class="footer-col">
+          <h4>Features</h4>
+          <ul>
+            <li><a href="#">Book tickets</a></li>
+            <li><a href="#">Review movies</a></li>
+            <li><a href="#">Find cinemas</a></li>
+            <li><a href="#">Trailers</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Discover</h4>
+          <ul>
+            <li><a href="#">New releases</a></li>
+            <li><a href="#">Coming soon</a></li>
+            <li><a href="#">Top rated</a></li>
+            <li><a href="#">Cinema events</a></li>
+            <li><a href="#">Genres</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="#">Help centre</a></li>
+            <li><a href="#">Support chat</a></li>
+            <li><a href="#">Refund policy</a></li>
+            <li><a href="#">Legal</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 Cinemart. All rights reserved.</span>
+      <span>Privacy · Terms · Cookies</span>
+    </div>
+  </footer>
+
+  <script>
+    // Movies database with cinema locations and dates
+    const moviesData = [
+      {
+        id: 1,
+        title: "Avatar: Fire and Ash",
+        genre: "Sci-Fi / Adventure",
+        rating: 8.9,
+        image: "avatar-fire-and-ash.jpg",
+        cinemas: [
+          { name: "SuperShow Cinema", locations: ["TK", "FunMall"], theatreTypes: ["2D", "3D", "4DX"] },
+          { name: "MultiplexCity", locations: ["Aeon1"], theatreTypes: ["2D", "3D", "ScreenX"] }
+        ],
+        releaseDate: "2025-12-19",
+        runtime: "192m",
+        trailerId: "d9MyW72ELq0"
+      },
+      {
+        id: 2,
+        title: "Zootopia 2",
+        genre: "Animation / Comedy",
+        rating: 8.1,
+        image: "zootopia2.jpeg",
+        cinemas: [
+          { name: "MultiplexCity", locations: ["Aeon1", "Aeon2", "KMall"], theatreTypes: ["2D", "3D"] },
+          { name: "Happy Cinema", locations: ["Aeon2", "Sorya Mall"], theatreTypes: ["2D", "4DX", "ScreenX"] }
+        ],
+        releaseDate: "2025-11-26",
+        runtime: "115m",
+        trailerId: "BjkIOU5PhyQ"
+      },
+      {
+        id: 3,
+        title: "Project Hail Mary",
+        genre: "Sci-Fi / Drama",
+        rating: 9.0,
+        image: "project-hail-mary.avif",
+        cinemas: [
+          { name: "SuperShow Cinema", locations: ["Aeon1", "FunMall"], theatreTypes: ["2D", "3D", "4DX", "ScreenX"] },
+          { name: "MultiplexCity", locations: ["Aeon3", "KMall"], theatreTypes: ["2D", "3D"] },
+          { name: "Happy Cinema", locations: ["Aeon3", "Noro Mall"], theatreTypes: ["2D", "3D", "4DX"] }
+        ],
+        releaseDate: "2025-12-05",
+        runtime: "145m",
+        trailerId: "m08TxIsFTRI"
+      },
+      {
+        id: 4,
+        title: "Hoppers",
+        genre: "Animation / Adventure",
+        rating: 7.8,
+        image: "hoppers.jpg",
+        cinemas: [
+          { name: "Happy Cinema", locations: ["Aeon2", "Sorya Mall", "Noro Mall"], theatreTypes: ["2D", "3D"] },
+          { name: "MultiplexCity", locations: ["Aeon2"], theatreTypes: ["2D", "3D", "ScreenX"] }
+        ],
+        releaseDate: "2025-10-15",
+        runtime: "102m",
+        trailerId: "PypDSyIRRSs"
+      },
+      {
+        id: 5,
+        title: "GOAT",
+        genre: "Animation / Sports / Comedy",
+        rating: "TBA",
+        image: "goat.jpg",
+        cinemas: [
+          { name: "SuperShow Cinema", locations: ["TK", "Aeon1"], theatreTypes: ["2D", "4DX"] },
+          { name: "MultiplexCity", locations: ["KMall"], theatreTypes: ["2D"] }
+        ],
+        releaseDate: "2026-02-13",
+        runtime: "98m",
+        trailerId: "5r-7eWDBc40"
+      },
+      {
+        id: 6,
+        title: "Crime 101",
+        genre: "Crime / Thriller",
+        rating: "TBA",
+        image: "Crime_101_(2026_film)_poster.jpg",
+        cinemas: [
+          { name: "SuperShow Cinema", locations: ["FunMall"], theatreTypes: ["2D", "ScreenX"] },
+          { name: "MultiplexCity", locations: ["Aeon1"], theatreTypes: ["2D", "3D"] }
+        ],
+        releaseDate: "2026-02-13",
+        runtime: "140m",
+        trailerId: "f5y-cziwmMw"
+      },
+      {
+        id: 7,
+        title: "Peaky Blinders: The Immortal Man",
+        genre: "Crime / Drama",
+        rating: "TBA",
+        image: "peakyblinder.jpg",
+        cinemas: [
+          { name: "MultiplexCity", locations: ["Aeon3"], theatreTypes: ["2D", "3D", "ScreenX"] }
+        ],
+        releaseDate: "2026-03-20",
+        runtime: "112m",
+        trailerId: "lcvUGs3xaDM"
+      },
+      {
+        id: 8,
+        title: "Scream 7",
+        genre: "Horror / Slasher",
+        rating: "TBA",
+        image: "scream7.jpg",
+        cinemas: [
+          { name: "Happy Cinema", locations: ["Aeon2", "Noro Mall"], theatreTypes: ["2D", "4DX"] }
+        ],
+        releaseDate: "2026-02-27",
+        runtime: "114m",
+        trailerId: "UJrghaPJ0RY"
+      }
+    ];
+
+    // Cinema to location mapping
+    const cinemaLocations = {
+      "SuperShow Cinema": ["TK", "FunMall", "Aeon1"],
+      "MultiplexCity": ["Aeon1", "Aeon2", "Aeon3", "KMall"],
+      "Happy Cinema": ["Aeon2", "Aeon3", "Sorya Mall", "Noro Mall"]
+    };
+
+    // Cinema to theatre types mapping
+    const cinemaTheatreTypes = {
+      "SuperShow Cinema": ["2D", "3D", "4DX", "ScreenX"],
+      "MultiplexCity": ["2D", "3D", "ScreenX"],
+      "Happy Cinema": ["2D", "3D", "4DX", "ScreenX"]
+    };
+
+    // Render movies
+    function renderMovies(moviesToShow) {
+      const grid = document.getElementById('moviesGrid');
+      const count = document.getElementById('movieCount');
+      const noResults = document.getElementById('noResults');
+
+      const selectedCinema = document.getElementById('cinemaDropdown')?.getAttribute('data-value') || '';
+      const selectedLocation = document.getElementById('locationDropdown')?.getAttribute('data-value') || '';
+      const selectedTheatre = document.getElementById('theatreDropdown')?.getAttribute('data-value') || '';
+      const selectedDate = document.querySelector('.date-btn.active')?.dataset.date || '';
+
+      const queryParams = new URLSearchParams();
+      if (selectedCinema) queryParams.set('cinema', selectedCinema);
+      if (selectedLocation) queryParams.set('location', selectedLocation);
+      if (selectedTheatre) queryParams.set('theatre', selectedTheatre);
+      if (selectedDate) queryParams.set('date', selectedDate);
+      
+      const queryString = queryParams.toString() ? '&' + queryParams.toString() : '';
+
+      if (moviesToShow.length === 0) {
+        grid.style.display = 'none';
+        noResults.style.display = 'block';
+        count.textContent = '0';
+        return;
+      }
+
+      grid.style.display = 'grid';
+      noResults.style.display = 'none';
+      count.textContent = moviesToShow.length;
+
+      grid.innerHTML = moviesToShow.map(movie => `
+        <div class="movie-card">
+          <div class="card-poster">
+            <img src="${movie.image}" alt="${movie.title}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22240%22 height=%22360%22%3E%3Crect fill=%22%231a1a1a%22 width=%22240%22 height=%22360%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23666%22 font-size=%2216%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+            <span class="card-rating">★ ${movie.rating}</span>
+            <div class="poster-overlay">
+              <div style="width: 100%;">
+                <a href="${movie.releaseDate > new Date().toISOString().split('T')[0] ? '#' : `movie-details.html?id=${movie.id}${queryString}`}" 
+                   class="btn-primary" 
+                   style="${movie.releaseDate > new Date().toISOString().split('T')[0] ? 'opacity: 0.6; cursor: not-allowed;' : ''}">
+                  ${movie.releaseDate > new Date().toISOString().split('T')[0] ? 'Coming Soon' : 'Book Ticket'}
+                </a>
+                ${movie.trailerId ? `<button class="btn-trailer" onclick="openTrailer('${movie.trailerId}')">Watch Trailer</button>` : ''}
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="card-genre">${movie.genre} ${movie.runtime ? `| ${movie.runtime}` : ''}</p>
+            <h3 class="card-title">${movie.title}</h3>
+            <div class="card-desc" style="display: block; overflow: visible;">
+              ${movie.cinemas.map(c => `<div style="margin-bottom: 8px;"><strong>${c.name}:</strong> ${c.locations.join(', ')}<br><span style="color: var(--accent); font-size: 0.9em;">${c.theatreTypes.join(', ')}</span></div>`).join('')}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Filter movies
+    function filterMovies() {
+      const selectedCinema = document.getElementById('cinemaDropdown').getAttribute('data-value');
+      const selectedLocation = document.getElementById('locationDropdown').getAttribute('data-value');
+      const selectedTheatre = document.getElementById('theatreDropdown').getAttribute('data-value');
+      const selectedDate = document.querySelector('.date-btn.active')?.dataset.date;
+
+      const filtered = moviesData.filter(movie => {
+        let cinemaMatch = true;
+        let locationMatch = true;
+        let theatreMatch = true;
+        let dateMatch = true;
+
+        // Cinema filter
+        if (selectedCinema) {
+          cinemaMatch = movie.cinemas.some(c => c.name === selectedCinema);
+        }
+
+        // Location filter
+        if (selectedLocation) {
+          if (selectedCinema) {
+            // If cinema is selected, check if that cinema has the location
+            const cinemaData = movie.cinemas.find(c => c.name === selectedCinema);
+            locationMatch = cinemaData && cinemaData.locations.includes(selectedLocation);
+          } else {
+            // Otherwise, check if any cinema has this location
+            locationMatch = movie.cinemas.some(c => c.locations.includes(selectedLocation));
+          }
+        }
+
+        // Theatre type filter
+        if (selectedTheatre) {
+          if (selectedCinema) {
+            // If cinema is selected, check if that cinema has the theatre type
+            const cinemaData = movie.cinemas.find(c => c.name === selectedCinema);
+            theatreMatch = cinemaData && cinemaData.theatreTypes.includes(selectedTheatre);
+          } else {
+            // Otherwise, check if any cinema has this theatre type
+            theatreMatch = movie.cinemas.some(c => c.theatreTypes.includes(selectedTheatre));
+          }
+        }
+
+        // Date filter
+        if (selectedDate) {
+          dateMatch = movie.releaseDate <= selectedDate;
+        }
+
+        return cinemaMatch && locationMatch && theatreMatch && dateMatch;
+      });
+
+      renderMovies(filtered);
+    }
+
+    // Initialize date picker
+    function initializeDatePicker() {
+      const datePicker = document.getElementById('datePicker');
+      const today = new Date();
+
+      for (let i = 0; i < 14; i++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() + i);
+
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        const day = dayNames[date.getDay()];
+        const dateNum = date.getDate();
+        const month = monthNames[date.getMonth()];
+        const dateStr = date.toISOString().split('T')[0];
+        const label = i === 0 ? 'Today' : day;
+
+        const btn = document.createElement('button');
+        btn.className = 'date-btn' + (i === 0 ? ' active' : '');
+        btn.dataset.date = dateStr;
+        btn.style.minWidth = '110px';
+        btn.innerHTML = `
+          <span class="date-btn-day">${label}</span>
+          <span class="date-btn-date">${dateNum}</span>
+          <span class="date-btn-month">${month}</span>
+        `;
+
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+          e.target.closest('.date-btn').classList.add('active');
+          filterMovies();
+        });
+
+        datePicker.appendChild(btn);
+      }
+
+      // Add mouse wheel scroll support
+      datePicker.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        datePicker.scrollLeft += e.deltaY > 0 ? 100 : -100;
+      });
+    }
+  </script>
+
+  <!-- TRAILER MODAL -->
+  <div id="trailerModal" class="modal-overlay">
+    <button class="modal-close" onclick="closeTrailer()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    </button>
+    <div class="modal-container" id="trailerContainer">
+      <!-- Player will be injected here -->
+    </div>
+  </div>
+
+  <script>
+    function openTrailer(videoId) {
+      const modal = document.getElementById('trailerModal');
+      const container = document.getElementById('trailerContainer');
+      container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      modal.style.display = 'flex';
+      setTimeout(() => modal.classList.add('active'), 10);
+    }
+
+    function closeTrailer() {
+      const modal = document.getElementById('trailerModal');
+      const container = document.getElementById('trailerContainer');
+      modal.classList.remove('active');
+      setTimeout(() => {
+        modal.style.display = 'none';
+        container.innerHTML = '';
+      }, 400);
+    }
+
+    // Close on overlay click
+    document.getElementById('trailerModal').addEventListener('click', (e) => {
+      if (e.target.id === 'trailerModal') closeTrailer();
+    });
+
+    // Custom Dropdown logic
+    document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+      const selectedBox = dropdown.querySelector('.dropdown-selected');
+      const selectedText = selectedBox.querySelector('span');
+
+      selectedBox.addEventListener('click', function (e) {
+        e.stopPropagation();
+        // Close other dropdowns
+        document.querySelectorAll('.custom-dropdown').forEach(d => {
+          if (d !== dropdown) d.classList.remove('active');
+        });
+        dropdown.classList.toggle('active');
+      });
+
+      // Event delegation for options
+      dropdown.addEventListener('click', function (e) {
+        const option = e.target.closest('.dropdown-options div');
+        if (option) {
+          e.stopPropagation();
+          const value = option.getAttribute('data-value') || '';
+          dropdown.setAttribute('data-value', value);
+          selectedText.textContent = option.textContent;
+
+          dropdown.querySelectorAll('.dropdown-options div').forEach(opt => opt.classList.remove('selected'));
+          option.classList.add('selected');
+
+          dropdown.classList.remove('active');
+
+          if (dropdown.id === 'cinemaDropdown') {
+            updateDynamicFilters(value);
+          }
+          filterMovies();
+        }
+      });
+    });
+
+    document.addEventListener('click', function () {
+      document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+        dropdown.classList.remove('active');
+      });
+    });
+
+    // Update location and theatre options based on selected cinema
+    function updateDynamicFilters(selectedCinema) {
+      const locationDropdown = document.getElementById('locationDropdown');
+      const locationOptions = locationDropdown.querySelector('.dropdown-options');
+      const locationText = locationDropdown.querySelector('.dropdown-selected span');
+
+      const theatreDropdown = document.getElementById('theatreDropdown');
+      const theatreOptions = theatreDropdown.querySelector('.dropdown-options');
+      const theatreText = theatreDropdown.querySelector('.dropdown-selected span');
+
+      // Update location options
+      if (selectedCinema) {
+        const availableLocations = cinemaLocations[selectedCinema];
+        let optionsHTML = '<div data-value="" class="selected">All Locations</div>';
+        availableLocations.forEach(loc => {
+          optionsHTML += `<div data-value="${loc}">${loc}</div>`;
+        });
+        locationOptions.innerHTML = optionsHTML;
+      } else {
+        locationOptions.innerHTML = `
+          <div data-value="" class="selected">All Locations</div>
+          <div data-value="TK">TK</div>
+          <div data-value="FunMall">FunMall</div>
+          <div data-value="Aeon1">Aeon1</div>
+          <div data-value="Aeon2">Aeon2</div>
+          <div data-value="Aeon3">Aeon3</div>
+          <div data-value="KMall">KMall</div>
+          <div data-value="Sorya Mall">Sorya Mall</div>
+          <div data-value="Noro Mall">Noro Mall</div>
+        `;
+      }
+      locationDropdown.setAttribute('data-value', '');
+      locationText.textContent = 'All Locations';
+
+      // Update theatre type options
+      if (selectedCinema) {
+        const availableTheatres = cinemaTheatreTypes[selectedCinema];
+        let theatreHTML = '<div data-value="" class="selected">All Types</div>';
+        availableTheatres.forEach(theatre => {
+          theatreHTML += `<div data-value="${theatre}">${theatre}</div>`;
+        });
+        theatreOptions.innerHTML = theatreHTML;
+      } else {
+        theatreOptions.innerHTML = `
+          <div data-value="" class="selected">All Types</div>
+          <div data-value="2D">2D</div>
+          <div data-value="3D">3D</div>
+          <div data-value="4DX">4DX</div>
+          <div data-value="ScreenX">ScreenX</div>
+        `;
+      }
+      theatreDropdown.setAttribute('data-value', '');
+      theatreText.textContent = 'All Types';
+    }
+
+    // Parse URL parameters for pre-filtering
+    function processUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      const cinemaQuery = params.get('cinema');
+      const locationQuery = params.get('location');
+
+      if (cinemaQuery) {
+        const cinemaDropdown = document.getElementById('cinemaDropdown');
+        const cinemaOptions = cinemaDropdown.querySelectorAll('.dropdown-options div');
+        const cinemaOpt = Array.from(cinemaOptions).find(o => o.getAttribute('data-value') === cinemaQuery);
+        
+        if (cinemaOpt) {
+          cinemaDropdown.setAttribute('data-value', cinemaQuery);
+          cinemaDropdown.querySelector('.dropdown-selected span').textContent = cinemaQuery;
+          cinemaOptions.forEach(opt => opt.classList.remove('selected'));
+          cinemaOpt.classList.add('selected');
+          
+          updateDynamicFilters(cinemaQuery);
+        }
+      }
+
+      if (locationQuery) {
+        const locationDropdown = document.getElementById('locationDropdown');
+        const locationOptions = locationDropdown.querySelectorAll('.dropdown-options div');
+        const locationOpt = Array.from(locationOptions).find(o => o.getAttribute('data-value') === locationQuery);
+        
+        if (locationOpt) {
+          locationDropdown.setAttribute('data-value', locationQuery);
+          locationDropdown.querySelector('.dropdown-selected span').textContent = locationQuery;
+          locationOptions.forEach(opt => opt.classList.remove('selected'));
+          locationOpt.classList.add('selected');
+        }
+      }
+
+      filterMovies();
+    }
+
+    // Initialize
+    initializeDatePicker();
+    processUrlParams();
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,379 @@
+const fs = require('fs');
+
+const index = fs.readFileSync('index.html', 'utf8');
+
+const navMatch = index.match(/<nav>[\s\S]*?<\/nav>/);
+let nav = navMatch ? navMatch[0] : '';
+nav = nav.replace('class="active"', '');
+
+const footerMatch = index.match(/<footer>[\s\S]*?<\/footer>/);
+const footer = footerMatch ? footerMatch[0] : '';
+
+const css = `
+    ::-webkit-scrollbar { display: none; }
+    html { scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none; }
+    html::-webkit-scrollbar { display: none; }
+
+    body { font-family: 'DM Sans', sans-serif; background: var(--black); color: var(--text); line-height: 1.6; overflow: hidden; height: 100vh; display: flex; margin: 0; }
+    
+    /* Split Screen */
+    .auth-visual { flex: 1.2; background: url('auth-bg.png') center/cover no-repeat; position: relative; display: flex; align-items: flex-end; padding: 60px; }
+    .auth-visual::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, transparent 100%); }
+    .auth-visual-content { position: relative; z-index: 2; max-width: 600px; }
+    .auth-visual-content h1 { font-family: 'Syne', sans-serif; font-size: 3.5rem; font-weight: 800; color: #fff; line-height: 1.1; margin-bottom: 16px; }
+    .auth-visual-content p { color: rgba(255,255,255,0.7); font-size: 1.2rem; }
+
+    .auth-form-side { flex: 0.8; display: flex; align-items: center; justify-content: center; padding: 40px; background: var(--black); position: relative; overflow-y: auto; }
+    
+    .screen-curve { height: 48px; width: 100%; max-width: 600px; margin: 0 auto; border-top: 4px solid rgba(220, 38, 38, 0.8); border-radius: 50% 50% 0 0 / 100% 100% 0 0; box-shadow: 0 -15px 40px -10px rgba(220, 38, 38, 0.5); margin-bottom: 20px; }
+    .screen-text { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; letter-spacing: 0.1em; color: var(--white); }
+    
+    .auth-container { max-width: 480px; width: 100%; padding: 0; background: transparent; border: none; box-shadow: none; margin: 0; }
+    .auth-title { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; text-align: left; margin-bottom: 16px; color: var(--white); }
+    
+    .auth-form { display: flex; flex-direction: column; gap: 12px; }
+    .input-group { display: flex; flex-direction: column; gap: 6px; }
+    .input-group label { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+    .input-group input { background: #111; border: 1px solid var(--border); border-radius: 12px; padding: 16px; color: #fff; font-size: 1rem; outline: none; transition: all 0.2s; }
+    .input-group input:focus { border-color: var(--accent); background: #1a1a1a; box-shadow: 0 0 0 4px rgba(232, 73, 15, 0.1); }
+
+    .btn-auth { background: var(--accent); color: #fff; border: none; padding: 18px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 1rem; width: 100%; margin-top: 0px;}
+    .btn-auth:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(232, 73, 15, 0.4); }
+
+    .divider { display: flex; align-items: center; text-align: center; color: var(--muted); margin: 12px 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
+    .divider::before { margin-right: 20px; }
+    .divider::after { margin-left: 20px; }
+
+    .btn-google { background: #fff; color: #000; border: none; padding: 16px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: transform 0.2s; width: 100%; font-size: 1rem;}
+    .btn-google img { height: 22px; }
+    .btn-google:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1); }
+
+    .toggle-auth { text-align: center; font-size: 0.9rem; color: var(--muted); margin-top: 16px; }
+    .toggle-auth a { color: var(--accent); font-weight: 700; text-decoration: none; margin-left: 5px; }
+    .toggle-auth a:hover { text-decoration: underline; }
+
+    /* Verification Overlay */
+    .verification-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 5000; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px; backdrop-filter: blur(10px); }
+    .verification-card { max-width: 500px; }
+    .verification-card h2 { font-family: 'Syne', sans-serif; font-size: 2.5rem; color: #fff; margin-bottom: 20px; }
+    .verification-card p { color: var(--muted); font-size: 1.1rem; margin-bottom: 40px; line-height: 1.6; }
+    .spinner { width: 60px; height: 60px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 32px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .btn-ghost { background: rgba(255, 255, 255, 0.08); color: var(--text); border: 1px solid var(--border); padding: 14px 32px; border-radius: 10px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;}
+    .btn-ghost:hover { background: rgba(255, 255, 255, 0.15); border-color: #fff; }
+    .btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .verification-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 32px; }
+    .error-msg { color: #ff4b4b; background: rgba(255, 75, 75, 0.1); padding: 14px; border-radius: 10px; font-size: 0.9rem; display: none; text-align: center; margin-bottom: 24px; border: 1px solid rgba(255, 75, 75, 0.2);}
+
+    .pw-rule { font-size: 0.75rem; color: var(--muted); display: flex; align-items: center; gap: 6px; transition: color 0.2s; }
+    .pw-rule::before { content: '○'; font-size: 1rem; }
+    .pw-rule.met { color: #4caf50; }
+    .pw-rule.met::before { content: '●'; }
+
+    @media (max-width: 1024px) {
+      .auth-visual { display: none; }
+      .auth-form-side { flex: 1; padding: 20px; }
+      body { overflow-y: auto; height: auto; }
+    }
+`;
+
+const js = `
+    import { auth } from './firebase-config.js';
+    import { 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword, 
+      GoogleAuthProvider, 
+      signInWithPopup, 
+      sendEmailVerification, 
+      signOut,
+      onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const loginToggle = document.getElementById('loginToggle');
+    const signupToggle = document.getElementById('signupToggle');
+    const errorMsg = document.getElementById('errorMsg');
+    const verificationOverlay = document.getElementById('verificationOverlay');
+
+    // Toggle logic
+    loginToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginForm.style.display = 'flex';
+      signupForm.style.display = 'none';
+      document.getElementById('authSubtitle').textContent = "Sign in to your account";
+    });
+
+    signupToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginForm.style.display = 'none';
+      signupForm.style.display = 'flex';
+      document.getElementById('authSubtitle').textContent = "Create your account";
+    });
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.style.display = 'block';
+      setTimeout(() => { errorMsg.style.display = 'none'; }, 5000);
+    }
+
+    // Auth actions
+    window.handleGoogleAuth = () => {
+      const provider = new GoogleAuthProvider();
+      signInWithPopup(auth, provider)
+        .then(() => window.location.href = 'index.html')
+        .catch(err => showError(err.message));
+    };
+
+    signupForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = e.target.email.value;
+      const pass = e.target.password.value;
+      
+      createUserWithEmailAndPassword(auth, email, pass)
+        .then((userCredential) => {
+          sendEmailVerification(userCredential.user);
+          showVerificationScreen();
+        })
+        .catch(err => showError(err.message));
+    });
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = e.target.email.value;
+      const pass = e.target.password.value;
+      
+      signInWithEmailAndPassword(auth, email, pass)
+        .then(() => {
+          checkVerificationStatus();
+        })
+        .catch(err => {
+          if (err.code === 'auth/invalid-credential') {
+            showError("Invalid email or password.");
+          } else {
+            showError(err.message);
+          }
+        });
+    });
+
+    let pollInterval = null;
+
+    window.handleResendEmail = () => {
+      const user = auth.currentUser;
+      if (user) {
+        sendEmailVerification(user)
+          .then(() => {
+            const btn = document.getElementById('resendBtn');
+            btn.disabled = true;
+            btn.textContent = "Sent! Wait 60s...";
+            setTimeout(() => {
+              btn.disabled = false;
+              btn.textContent = "Resend Verification Link";
+            }, 60000);
+          })
+          .catch(err => showError(err.message));
+      }
+    };
+
+    window.handleBackToLogin = () => {
+      if (pollInterval) clearInterval(pollInterval);
+      signOut(auth).then(() => {
+        verificationOverlay.style.display = 'none';
+      });
+    };
+
+    function showVerificationScreen() {
+      verificationOverlay.style.display = 'flex';
+      if (pollInterval) clearInterval(pollInterval);
+      pollInterval = setInterval(() => {
+        if (auth.currentUser) {
+          auth.currentUser.reload().then(() => {
+            if (auth.currentUser.emailVerified) {
+              clearInterval(pollInterval);
+              window.location.href = 'index.html';
+            }
+          });
+        }
+      }, 3000);
+    }
+
+    function checkVerificationStatus() {
+      const user = auth.currentUser;
+      if (user && !user.emailVerified) {
+        showVerificationScreen();
+      } else if (user) {
+        window.location.href = 'index.html';
+      }
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (user && user.emailVerified) {
+        window.location.href = 'index.html';
+      } else if (user) {
+        showVerificationScreen();
+      } else {
+        verificationOverlay.style.display = 'none';
+      }
+    });
+
+    // Password Validation
+    const signupPass = signupForm.querySelector('input[name="password"]');
+    const signupBtn = signupForm.querySelector('button[type="submit"]');
+    const rules = {
+      length: document.getElementById('rule-len'),
+      upper: document.getElementById('rule-upper'),
+      lower: document.getElementById('rule-lower'),
+      num: document.getElementById('rule-num')
+    };
+
+    if (signupPass) {
+      signupPass.addEventListener('input', (e) => {
+        const val = e.target.value;
+        const results = {
+          length: val.length >= 6,
+          upper: /[A-Z]/.test(val),
+          lower: /[a-z]/.test(val),
+          num: /[0-9]/.test(val)
+        };
+
+        Object.keys(results).forEach(key => {
+          if (results[key]) {
+            rules[key]?.classList.add('met');
+          } else {
+            rules[key]?.classList.remove('met');
+          }
+        });
+
+        signupBtn.disabled = !Object.values(results).every(r => r);
+        signupBtn.style.opacity = signupBtn.disabled ? "0.5" : "1";
+      });
+    }
+`;
+
+const body = `
+  <div class="auth-visual">
+    <div class="auth-visual-content">
+      <h1>Your Cinema,<br>Anywhere.</h1>
+      <p>Book tickets, pre-order snacks, and manage your digital movie collection with ease.</p>
+    </div>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="auth-container">
+      <h2 class="auth-title">Welcome to Cinemart</h2>
+      <p id="authSubtitle" style="color: var(--muted); margin-top: -16px; margin-bottom: 24px; font-size: 1rem;">Sign in to your account</p>
+      
+      <div id="errorMsg" class="error-msg"></div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form">
+        <button type="button" onclick="handleGoogleAuth()" class="btn-google">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg">
+          Continue with Google
+        </button>
+
+        <div class="divider">or use email</div>
+
+        <div class="input-group">
+          <label>Email Address</label>
+          <input type="email" name="email" placeholder="you@example.com" required>
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-auth">Sign In</button>
+        <p style="font-size: 0.75rem; color: var(--muted); margin-top: 4px; text-align: center; line-height: 1.4;">
+          By signing in, you agree to Cinemart's <br>
+          <a href="terms.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">Terms of Service</a> and 
+          <a href="privacy.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">Privacy Policy</a>.
+        </p>
+        <p class="toggle-auth">Don't have an account? <a href="#" id="signupToggle">Sign Up</a></p>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signupForm" class="auth-form" style="display: none;">
+        <div class="input-group">
+          <label>Full Name</label>
+          <input type="text" name="name" placeholder="John Doe" required>
+        </div>
+        <div class="input-group">
+          <label>Email Address</label>
+          <input type="email" name="email" placeholder="you@example.com" required>
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" name="password" placeholder="••••••••" required>
+          <div class="password-requirements" style="margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div id="rule-len" class="pw-rule">Min 6 chars</div>
+            <div id="rule-upper" class="pw-rule">At least 1 Upper</div>
+            <div id="rule-lower" class="pw-rule">At least 1 Lower</div>
+            <div id="rule-num" class="pw-rule">At least 1 Number</div>
+          </div>
+        </div>
+        <button type="submit" class="btn-auth" disabled style="opacity: 0.5;">Create Account</button>
+        <p style="font-size: 0.75rem; color: var(--muted); margin-top: 4px; text-align: center; line-height: 1.4;">
+          By creating an account, you agree to Cinemart's <br>
+          <a href="terms.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">Terms of Service</a> and 
+          <a href="privacy.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">Privacy Policy</a>.
+        </p>
+        <p class="toggle-auth">Already have an account? <a href="#" id="loginToggle">Sign In</a></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="verificationOverlay" class="verification-overlay">
+    <div class="verification-card">
+      <div class="spinner"></div>
+      <h2>Verify your Email</h2>
+      <p>We've sent a verification link to your email. This screen will update automatically once you verify.</p>
+      
+      <div class="verification-actions">
+        <button id="resendBtn" onclick="handleResendEmail()" class="btn-auth">Resend Verification Link</button>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+          <button onclick="window.location.reload()" class="btn-ghost">Refresh Status</button>
+          <button onclick="handleBackToLogin()" class="btn-ghost">Back to Login</button>
+        </div>
+      </div>
+    </div>
+  </div>
+`;
+
+const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — Cinemart</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <script type="module" src="legals-init.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --black: #000000;
+            --dark: #0d0d0d;
+            --card: #1a1a1a;
+            --border: #2a2a2a;
+            --text: #ffffff;
+            --muted: #b0b0b8;
+            --accent: #e8490f;
+            --white: #ffffff;
+        }
+        ${css}
+    </style>
+</head>
+<body>
+    ${body}
+
+    <script type="module">
+      ${js}
+    </script>
+</body>
+</html>`;
+
+fs.writeFileSync('auth.html', html);
+console.log('auth.html built successfully!');
