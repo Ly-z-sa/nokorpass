@@ -35,3 +35,7 @@ ehthumbs.db
 .vercel/
 dist/
 build/
+
+# Keep build scripts under scripts/build
+!scripts/build/
+!scripts/build/**
