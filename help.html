@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <title>Help Centre — NokorPass</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/pages/legal.css" />
+  <link rel="stylesheet" href="css/pages/help.css" />
+  <script type="module" src="js/auth-guard.js"></script>
+  <script type="module" src="js/legals-init.js"></script>
+</head>
+<body>
+  <script src="js/global-layout.js"></script>
+
+  <section class="legal-section help-section">
+    <div class="legal-container help-container">
+      <div class="legal-header help-header">
+        <span class="section-tag">Support</span>
+        <h1>Help Centre</h1>
+        <p class="last-updated">Find answers about bookings, tickets, payments, and your account.</p>
+      </div>
+
+      <div class="help-quick-links">
+        <a href="movies.html" class="help-link-card">
+          <span class="help-link-title">Book a ticket</span>
+          <span class="help-link-desc">Browse movies and showtimes</span>
+        </a>
+        <a href="tickets.html" class="help-link-card">
+          <span class="help-link-title">My tickets</span>
+          <span class="help-link-desc">View bookings and QR codes</span>
+        </a>
+        <a href="events.html" class="help-link-card">
+          <span class="help-link-title">Live Events</span>
+          <span class="help-link-desc">Browse concerts and comedy shows</span>
+        </a>
+        <a href="account.html" class="help-link-card">
+          <span class="help-link-title">Account settings</span>
+          <span class="help-link-desc">Profile and preferences</span>
+        </a>
+      </div>
+
+      <div class="help-contact-banner">
+        <div>
+          <h2>Still need help?</h2>
+          <p>Our team usually replies within one business day.</p>
+        </div>
+        <a href="mailto:info@nokorpass.lizaphat.shop?subject=NokorPass%20Support" class="btn-primary">Email support</a>
+      </div>
+
+      <div class="legal-body help-faq">
+        <h3>Frequently asked questions</h3>
+
+        <details class="help-faq-item" open>
+          <summary>How do I book a movie ticket?</summary>
+          <p>Go to <a href="movies.html">Movies</a>, choose a film, pick your cinema, date, and showtime, then select your seats on the booking page. Sign in or create an account to complete payment and receive your ticket.</p>
+        </details>
+
+        <details class="help-faq-item">
+          <summary>Where can I find my tickets after booking?</summary>
+          <p>Open <a href="tickets.html">My Tickets</a> while signed in. Each booking shows your movie, showtime, seats, and a QR code to present at the cinema.</p>
+        </details>
+
+        <details class="help-faq-item">
+          <summary>What payment methods do you accept?</summary>
+          <p>We accept ABA Pay, ACLEDA Pay, Visa, Mastercard, and KHQR. Available options appear on the payment screen when you checkout.</p>
+        </details>
+
+        <details class="help-faq-item">
+          <summary>Can I cancel or change my booking?</summary>
+          <p>All ticket sales are final unless stated otherwise at checkout. For exceptional cases (duplicate charge, wrong showtime selected by mistake), email us with your booking details and we will review your request.</p>
+        </details>
+
+        <details class="help-faq-item">
+          <summary>I did not receive a confirmation email</summary>
+          <p>Check your spam folder first. Your ticket is always available under <a href="tickets.html">My Tickets</a> when you are logged in with the same account used to book. If you still cannot find it, contact support with your name and booking time.</p>
+        </details>
+
+        <details class="help-faq-item">
+          <summary>How do I use my ticket at the cinema?</summary>
+          <p>Show the QR code from My Tickets at the entrance or concession desk. Arrive at least 15 minutes before the showtime so staff can scan your code and seat you comfortably.</p>
+        </details>
+
+        <details class="help-faq-item">
+          <summary>How do I reset my password or update my profile?</summary>
+          <p>Visit <a href="account.html">Account</a> while signed in to update your display name and preferences. For password resets, use the forgot-password link on the <a href="auth.html">sign-in page</a>.</p>
+        </details>
+
+        <details class="help-faq-item">
+          <summary>Is my personal data secure?</summary>
+          <p>Yes. We use Firebase Authentication and Firestore with industry-standard security. Read our <a href="privacy.html">Privacy Policy</a> for full details on how we handle your data.</p>
+        </details>
+      </div>
+
+      <div class="help-footer-note">
+        <p>By using NokorPass you agree to our <a href="terms.html">Terms of Service</a>.</p>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

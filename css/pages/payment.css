@@ -1,0 +1,345 @@
+
+    .payment-container { max-width: 800px; margin: 0 auto; padding: 60px 20px; min-height: 70vh; }
+    .payment-title { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; text-align: center; margin-bottom: 40px; color: var(--white); }
+    
+    /* Payment Methods */
+    .payment-methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-bottom: 40px; }
+    .method-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; text-align: center; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+    .method-card:hover { border-color: var(--accent); background: rgba(232, 73, 15, 0.05); transform: translateY(-5px); }
+    .method-card i { font-size: 2.5rem; color: var(--muted); }
+    .method-card:hover i { color: var(--accent); }
+    .method-name { font-weight: 700; color: var(--white); font-size: 1.1rem; }
+    .method-logo { height: 40px; width: auto; filter: grayscale(1) invert(1); opacity: 0.7; transition: all 0.3s; }
+    .method-card:hover .method-logo { filter: none; opacity: 1; }
+
+    /* Processing UI */
+    .processing-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+    .spinner { width: 60px; height: 60px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 24px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .processing-text { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--white); }
+
+    /* Success view */
+    .success-view { display: none; text-align: center; animation: fadeInUp 0.6s ease forwards; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    .download-section { display: flex; flex-direction: column; gap: 12px; align-items: center; max-width: 420px; margin: 30px auto 0; }
+    .btn-download { width: 100%; background: linear-gradient(135deg, #e50914, #b20710); color: #fff; border: none; padding: 16px 32px; border-radius: 14px; font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 800; cursor: pointer; transition: opacity 0.2s, transform 0.2s; letter-spacing: 0.04em; }
+    .btn-download:hover { opacity: 0.9; transform: translateY(-2px); }
+    .btn-home { width: 100%; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid var(--border); padding: 14px 32px; border-radius: 14px; font-weight: 600; text-decoration: none; display: inline-block; transition: all 0.2s; text-align: center; box-sizing: border-box; }
+    .btn-home:hover { background: rgba(255,255,255,0.15); }
+
+    /* ── PREMIUM RETRO TICKET ── */
+    .ticket-outer {
+      display: flex;
+      flex-direction: row;
+      background: #fdfbf7;
+      color: #1a1a1a;
+      border-radius: 24px;
+      position: relative;
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-family: 'DM Sans', sans-serif;
+      overflow: hidden;
+      text-align: left; /* reset page alignment */
+    }
+
+    /* Circular Corner Notches */
+    .notch {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: #000000;
+      border-radius: 50%;
+      z-index: 10;
+    }
+    .notch-tl { top: -12px; left: -12px; }
+    .notch-tr { top: -12px; right: -12px; }
+    .notch-bl { bottom: -12px; left: -12px; }
+    .notch-br { bottom: -12px; right: -12px; }
+
+    .ticket-main {
+      flex: 1.5;
+      display: flex;
+      flex-direction: column;
+      background: #fdfbf7;
+    }
+
+    .ticket-main-header {
+      background:
+        repeating-linear-gradient(-55deg, transparent, transparent 12px, rgba(0,0,0,0.06) 12px, rgba(0,0,0,0.06) 24px),
+        linear-gradient(135deg, #6e0000 0%, #a82020 40%, #e50914 100%);
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #fff;
+      border-bottom: 2px dashed rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+    .ticket-main-header .brand {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 0.9rem;
+      letter-spacing: 0.15em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-icon-svg {
+      flex-shrink: 0;
+      opacity: 0.95;
+    }
+    .ticket-main-header .serial {
+      font-family: monospace;
+      font-size: 0.72rem;
+      color: rgba(255, 255, 255, 0.75);
+      letter-spacing: 0.08em;
+      background: rgba(0,0,0,0.15);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .ticket-main-body {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      flex-grow: 1;
+    }
+    .ticket-watermark {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      width: 130px;
+      height: 130px;
+      opacity: 0.06;
+      pointer-events: none;
+      color: #c0392b;
+    }
+
+    .ticket-title-row {
+      margin-bottom: 24px;
+      z-index: 1;
+    }
+    .ticket-admit-badge {
+      display: inline-block;
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #9a6f0a;
+      border: 1.5px solid rgba(154, 111, 10, 0.35);
+      background: rgba(154, 111, 10, 0.07);
+      padding: 4px 12px;
+      border-radius: 5px;
+      margin-bottom: 12px;
+    }
+    .ticket-movie-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 800;
+      line-height: 1.12;
+      text-transform: uppercase;
+      color: #0d0d0d;
+      letter-spacing: -0.02em;
+    }
+
+    .ticket-info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px 24px;
+      margin-bottom: 20px;
+      z-index: 1;
+    }
+    .ticket-info-item label {
+      display: block;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      color: #8c857b;
+      font-weight: 700;
+      margin-bottom: 4px;
+      letter-spacing: 0.08em;
+    }
+    .ticket-info-item span {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #1a1a1a;
+    }
+
+    .ticket-snacks-section {
+      border-top: 1px dashed rgba(0, 0, 0, 0.1);
+      padding-top: 16px;
+      margin-top: auto;
+      z-index: 1;
+    }
+    .ticket-snacks-section label {
+      display: block;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      color: #8c857b;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: 0.08em;
+    }
+    .ticket-snacks-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .snack-tag {
+      display: inline-block;
+      background: rgba(229, 9, 20, 0.08);
+      color: #c0392b;
+      border: 1px solid rgba(229, 9, 20, 0.15);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    /* Perforation Separator */
+    .ticket-perforation {
+      width: 24px;
+      background: #fdfbf7;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .perf-line {
+      height: 100%;
+      width: 0;
+      border-left: 2px dashed #cfc8bc;
+      margin: 0;
+    }
+    .perf-circle-top,
+    .perf-circle-bottom {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: #000000;
+      border-radius: 50%;
+      z-index: 5;
+    }
+    .perf-circle-top { top: -12px; }
+    .perf-circle-bottom { bottom: -12px; }
+
+    /* Stub */
+    .ticket-stub {
+      width: 230px;
+      background: #faf6ee;
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .ticket-stub-header {
+      background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #fff;
+      border-bottom: 2px dashed rgba(0, 0, 0, 0.1);
+    }
+    .ticket-stub-header .stub-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+    }
+    .ticket-stub-header .price {
+      font-family: 'Syne', sans-serif;
+      font-weight: 850;
+      font-size: 1rem;
+    }
+    .ticket-stub-body {
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      flex-grow: 1;
+      gap: 16px;
+      text-align: center;
+    }
+    .stub-movie-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #222;
+      line-height: 1.25;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .stub-qr-wrapper {
+      padding: 10px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    .stub-scan-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      color: #8c857b;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+    }
+    .stub-serial {
+      font-family: monospace;
+      font-size: 0.72rem;
+      color: #8c857b;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── RESPONSIVE TICKET FOR MOBILE ── */
+    @media (max-width: 768px) {
+      .ticket-outer {
+        flex-direction: column;
+        max-width: 350px;
+      }
+      .ticket-stub {
+        width: 100%;
+        border-left: none;
+        border-top: 1.5px dashed rgba(0, 0, 0, 0.08);
+      }
+      .ticket-perforation {
+        width: 100%;
+        height: 24px;
+        flex-direction: row;
+      }
+      .perf-line {
+        width: 100%;
+        height: 0;
+        border-left: none;
+        border-top: 2px dashed #cfc8bc;
+      }
+      .perf-circle-top {
+        left: -12px;
+        top: 0;
+      }
+      .perf-circle-bottom {
+        right: -12px;
+        bottom: 0;
+        top: 0;
+      }
+      .stub-movie-title {
+        font-size: 1rem;
+      }
+      
+      .download-section {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn-download, .btn-home {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+      }
+    }

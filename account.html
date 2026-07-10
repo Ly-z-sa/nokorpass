@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings — NokorPass</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/pages/account.css" />
+    <script type="module" src="js/auth-guard.js"></script>
+    <script type="module" src="js/legals-init.js"></script>
+    </head>
+<body>
+    <script src="js/global-layout.js"></script>
+    
+  <section class="account-section">
+    <div class="account-container">
+      <div class="account-header">
+        <div class="profile-avatar">
+          <span id="avatarInitial">U</span>
+        </div>
+        <div class="profile-info">
+          <h1 id="userName">User Name</h1>
+          <p id="userEmail">Loading email...</p>
+          <span class="badge">Verified Member</span>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <!-- Profile Settings -->
+        <div class="settings-card">
+          <div class="card-header">
+            <h3>Personal Information</h3>
+            <p>Update your public profile details.</p>
+          </div>
+          <form id="profileForm" class="settings-form">
+            <div class="input-group">
+              <label>Full Name</label>
+              <input type="text" id="displayNameInput" placeholder="Enter your name">
+            </div>
+            <div class="input-group">
+              <label>Email Address</label>
+              <input type="email" id="emailInput" readonly disabled style="opacity: 0.6; cursor: not-allowed;">
+              <small>Email is used for ticket delivery and cannot be changed.</small>
+            </div>
+            <button type="submit" class="btn-primary">Update Profile</button>
+          </form>
+        </div>
+
+        <!-- Security -->
+        <div class="settings-card">
+          <div class="card-header">
+            <h3>Account Security</h3>
+            <p>Manage your password and authentication.</p>
+          </div>
+          <div class="security-items">
+            <div class="security-item">
+              <div class="item-text">
+                <strong>Password Reset</strong>
+                <p>We'll send a reset link to your email.</p>
+              </div>
+              <button onclick="handlePasswordReset()" class="btn-ghost">Send Link</button>
+            </div>
+            <div class="security-item danger">
+              <div class="item-text">
+                <strong>Delete Account</strong>
+                <p>Permanently remove your account data.</p>
+              </div>
+              <button onclick="handleDeleteAccount()" class="btn-outline-danger">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- App Preferences -->
+        <div class="settings-card">
+          <div class="card-header">
+            <h3>App Preferences</h3>
+            <p>Customize your movie-going experience.</p>
+          </div>
+          <div class="preference-items">
+            <div class="pref-item">
+              <span>Booking Notifications</span>
+              <label class="switch">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="pref-item">
+              <span>Marketing Emails</span>
+              <label class="switch">
+                <input type="checkbox">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="settings-card secondary">
+          <h3>Quick Links</h3>
+          <div class="quick-links">
+            <a href="tickets.html" class="quick-link">
+              <span class="icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9V5.2a.8.8 0 0 1 .8-.8h18.4a.8.8 0 0 1 .8.8V9M2 15v3.8a.8.8 0 0 0 .8.8h18.4a.8.8 0 0 0 .8-.8V15M2 9c2 0 2 6 0 6M22 9c-2 0-2 6 0 6M9 9h6m-6 6h6"/></svg>
+              </span>
+              <span>My Tickets</span>
+            </a>
+            <a href="privacy.html" class="quick-link">
+              <span class="icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM12 8v4m0 4h.01"/></svg>
+              </span>
+              <span>Privacy Policy</span>
+            </a>
+            <button onclick="handleLogout()" class="quick-link logout">
+              <span class="icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+              </span>
+              <span>Log Out</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feedback Overlay -->
+  <div id="feedbackToast" class="toast">
+    <p id="toastMessage">Success!</p>
+  </div>
+
+
+    <script type="module">
+        
+  import { auth } from './js/firebase-config.js';
+  import { 
+    onAuthStateChanged, 
+    updateProfile, 
+    sendPasswordResetEmail, 
+    signOut,
+    deleteUser 
+  } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+  const feedbackToast = document.getElementById('feedbackToast');
+  const toastMessage = document.getElementById('toastMessage');
+
+  function showToast(msg, isError = false) {
+    toastMessage.textContent = msg;
+    feedbackToast.style.background = isError ? "#ff4b4b" : "#fff";
+    feedbackToast.style.color = isError ? "#fff" : "#000";
+    feedbackToast.classList.add('show');
+    setTimeout(() => feedbackToast.classList.remove('show'), 4000);
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      document.getElementById('userName').textContent = user.displayName || 'Cinema Lover';
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('displayNameInput').value = user.displayName || '';
+      document.getElementById('emailInput').value = user.email;
+      document.getElementById('avatarInitial').textContent = (user.displayName || user.email).charAt(0).toUpperCase();
+    }
+  });
+
+  document.getElementById('profileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const newName = document.getElementById('displayNameInput').value;
+    try {
+      await updateProfile(auth.currentUser, { displayName: newName });
+      showToast("Profile updated successfully!");
+      document.getElementById('userName').textContent = newName;
+      document.getElementById('avatarInitial').textContent = newName.charAt(0).toUpperCase();
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  });
+
+  window.handlePasswordReset = async () => {
+    try {
+      await sendPasswordResetEmail(auth, auth.currentUser.email);
+      showToast("Password reset link sent to your email!");
+    } catch (err) {
+      showToast(err.message, true);
+    }
+  };
+
+  window.handleLogout = () => {
+    signOut(auth).then(() => {
+      window.location.href = 'auth.html';
+    });
+  };
+
+  window.handleDeleteAccount = async () => {
+    const ok = await confirmDialog({
+      title: 'Delete your account?',
+      message: 'This action is permanent. Your profile and all saved tickets will be removed and cannot be recovered.',
+      confirmText: 'Delete account',
+      cancelText: 'Cancel',
+      variant: 'danger',
+    });
+    if (!ok) return;
+
+    try {
+      await deleteUser(auth.currentUser);
+      window.location.href = 'auth.html';
+    } catch (err) {
+      showToast("Session expired. Please re-login to delete account.", true);
+    }
+  };
+
+    </script>
+</body>
+</html>

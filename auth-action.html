@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account action — NokorPass</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/pages/auth.css" />
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: var(--black);
+    }
+    .auth-action-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 32px;
+      text-align: center;
+    }
+    .auth-action-card h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+    .auth-action-card p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .auth-action-card .btn-auth {
+      width: 100%;
+      margin-bottom: 12px;
+    }
+    .auth-action-card .btn-ghost {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      text-decoration: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    .auth-action-card .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      animation: spin 0.8s linear infinite;
+    }
+    .auth-action-card.success .spinner,
+    .auth-action-card.error .spinner { display: none; }
+    .reset-form {
+      text-align: left;
+      display: none;
+    }
+    .reset-form.visible { display: block; }
+    .reset-form .input-group { margin-bottom: 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="auth-action-card" id="card">
+    <div class="spinner" id="spinner"></div>
+    <h1 id="title">Processing…</h1>
+    <p id="message">Please wait while we confirm your request.</p>
+
+    <form id="resetForm" class="reset-form">
+      <div class="input-group">
+        <label for="newPassword">New password</label>
+        <input type="password" id="newPassword" placeholder="••••••••" autocomplete="new-password" minlength="6" required>
+      </div>
+      <div class="input-group">
+        <label for="confirmPassword">Confirm password</label>
+        <input type="password" id="confirmPassword" placeholder="••••••••" autocomplete="new-password" minlength="6" required>
+      </div>
+      <button type="submit" class="btn-auth">Update password</button>
+    </form>
+
+    <a href="/auth.html" class="btn-ghost" id="backLink" style="display: none;">Back to sign in</a>
+  </div>
+
+  <script type="module">
+    import { auth } from '/js/firebase-config.js';
+    import {
+      applyActionCode,
+      verifyPasswordResetCode,
+      confirmPasswordReset,
+    } from 'https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js';
+
+    const card = document.getElementById('card');
+    const spinner = document.getElementById('spinner');
+    const titleEl = document.getElementById('title');
+    const messageEl = document.getElementById('message');
+    const resetForm = document.getElementById('resetForm');
+    const backLink = document.getElementById('backLink');
+
+    function showState(kind, title, message) {
+      card.classList.remove('success', 'error');
+      if (kind) card.classList.add(kind);
+      spinner.style.display = 'none';
+      titleEl.textContent = title;
+      messageEl.textContent = message;
+      backLink.style.display = 'inline-block';
+    }
+
+    function readActionParams() {
+      const fromSearch = new URLSearchParams(window.location.search);
+      const fromHash = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+      const get = (key) => fromSearch.get(key) || fromHash.get(key);
+      return {
+        mode: get('mode'),
+        oobCode: get('oobCode'),
+        continueUrl: get('continueUrl'),
+      };
+    }
+
+    function friendlyError(err) {
+      const code = err?.code || '';
+      if (code === 'auth/expired-action-code') {
+        return 'This link has expired. Request a new verification or reset email from the sign-in page.';
+      }
+      if (code === 'auth/invalid-action-code') {
+        return 'This link is invalid or was already used. Request a new email if you still need help.';
+      }
+      if (code === 'auth/weak-password') {
+        return 'Password is too weak. Use at least 6 characters.';
+      }
+      if (code === 'auth/network-request-failed') {
+        return 'Network error. Check your connection and try the link again.';
+      }
+      return err?.message || 'Something went wrong. Please try again.';
+    }
+
+    async function run() {
+      const { mode, oobCode, continueUrl } = readActionParams();
+
+      if (!mode || !oobCode) {
+        showState(
+          'error',
+          'Invalid link',
+          'This link is missing required information. Use the latest email from NokorPass or open auth.html to sign in.'
+        );
+        return;
+      }
+
+      const timeout = setTimeout(() => {
+        showState(
+          'error',
+          'Request timed out',
+          'Firebase did not respond in time. Deploy the latest site update, then request a new email link and try again.'
+        );
+      }, 20000);
+
+      try {
+        if (mode === 'verifyEmail' || mode === 'verifyAndChangeEmail') {
+          await applyActionCode(auth, oobCode);
+          clearTimeout(timeout);
+          showState('success', 'Email verified', 'Your email is confirmed. You can sign in now.');
+          backLink.textContent = 'Continue to sign in';
+          if (continueUrl) {
+            setTimeout(() => { window.location.href = continueUrl; }, 2000);
+          }
+          return;
+        }
+
+        if (mode === 'recoverEmail') {
+          await applyActionCode(auth, oobCode);
+          clearTimeout(timeout);
+          showState('success', 'Email restored', 'Your email has been recovered. You can sign in with your account.');
+          return;
+        }
+
+        if (mode === 'resetPassword') {
+          const email = await verifyPasswordResetCode(auth, oobCode);
+          clearTimeout(timeout);
+          spinner.style.display = 'none';
+          titleEl.textContent = 'Choose a new password';
+          messageEl.textContent = `Reset password for ${email}`;
+          resetForm.classList.add('visible');
+          backLink.style.display = 'inline-block';
+
+          resetForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const pw = document.getElementById('newPassword').value;
+            const pw2 = document.getElementById('confirmPassword').value;
+            if (pw !== pw2) {
+              messageEl.textContent = 'Passwords do not match.';
+              return;
+            }
+            try {
+              await confirmPasswordReset(auth, oobCode, pw);
+              resetForm.classList.remove('visible');
+              showState('success', 'Password updated', 'Your password has been changed. Sign in with your new password.');
+            } catch (err) {
+              messageEl.textContent = friendlyError(err);
+            }
+          };
+          return;
+        }
+
+        clearTimeout(timeout);
+        showState('error', 'Unsupported action', `Unknown action: ${mode}. Contact support if this keeps happening.`);
+      } catch (err) {
+        clearTimeout(timeout);
+        console.error('Auth action failed:', err);
+        showState('error', 'Could not complete action', friendlyError(err));
+      }
+    }
+
+    run().catch((err) => {
+      console.error('Auth action page error:', err);
+      showState('error', 'Could not start', friendlyError(err));
+    });
+  </script>
+</body>
+</html>

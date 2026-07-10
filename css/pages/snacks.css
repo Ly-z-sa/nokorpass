@@ -1,0 +1,247 @@
+.snacks-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 20px;
+    }
+
+    .snacks-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .snacks-header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+
+    .snacks-header p {
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+
+    .snacks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 32px;
+      margin-bottom: 60px;
+    }
+
+    .snack-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .snack-card:hover {
+      transform: translateY(-10px);
+      border-color: var(--accent);
+    }
+
+    .snack-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .snack-info {
+      padding: 24px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .snack-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .snack-desc {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 16px;
+      flex-grow: 1;
+    }
+
+    .snack-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+    }
+
+    .snack-price {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px 8px;
+      border-radius: 30px;
+      border: 1px solid var(--border);
+    }
+
+    .qty-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--white);
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .qty-btn:hover {
+      background: var(--accent);
+    }
+
+    .qty-num {
+      font-weight: 700;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    /* Checkout Bar */
+    .booking-footer {
+      position: sticky;
+      bottom: 0;
+      background: rgba(0,0,0,0.95);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border);
+      padding: 24px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .booking-summary {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
+
+    .summary-total {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--white);
+    }
+
+    .summary-total span {
+      font-size: 1.1rem;
+      color: var(--muted);
+      font-weight: 500;
+      margin-left: 8px;
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 20px;
+    }
+
+    .btn-skip {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-skip:hover {
+      color: var(--white);
+      border-color: var(--white);
+    }
+
+    .btn-confirm {
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      padding: 14px 40px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(232, 73, 15, 0.3);
+    }
+
+    .btn-confirm:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(232, 73, 15, 0.5);
+    }
+
+    @media (max-width: 768px) {
+      .snacks-container {
+        padding: 40px 16px;
+      }
+
+      .snacks-header h1 {
+        font-size: clamp(1.5rem, 6vw, 2rem);
+      }
+
+      .snacks-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
+      }
+
+      .booking-footer {
+        flex-direction: column;
+        gap: 20px;
+        padding: 24px 20px;
+        text-align: center;
+      }
+      .action-btns {
+        width: 100%;
+        flex-direction: column-reverse;
+      }
+      .btn-skip, .btn-confirm {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .snacks-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .snack-image {
+        height: 160px;
+      }
+
+      .snack-footer {
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+    }

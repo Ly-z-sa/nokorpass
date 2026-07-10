@@ -1,0 +1,7 @@
+
+  .event-card {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
+  }
+  .event-card:hover {
+    transform: translateY(-8px);
+  }

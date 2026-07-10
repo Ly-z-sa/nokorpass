@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <title>Movie Details — NokorPass</title>
+  <!-- Open Graph / Social Preview (generic for dynamic movie pages) -->
+  <meta property="og:title" content="Movie Details — NokorPass" />
+  <meta property="og:description" content="View movie details, trailers and showtimes on NokorPass." />
+  <meta property="og:image" content="assets/project-hail-mary.avif" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="/movie-details.html" />
+  <meta property="og:site_name" content="NokorPass" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Movie Details — NokorPass" />
+  <meta name="twitter:description" content="View movie details, trailers and showtimes on NokorPass." />
+  <meta name="twitter:image" content="assets/project-hail-mary.avif" />
+  <link rel="image_src" href="assets/project-hail-mary.avif" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/pages/movie-details.css" />
+<script type="module" src="js/auth-guard.js"></script>
+  </head>
+<body>
+  <script src="js/global-layout.js"></script>
+
+    <!-- MOVIE DETAILS HERO -->
+  <section class="movie-hero" id="movieHero">
+    <!-- Rendered dynamically via JS -->
+  </section>
+
+  <!-- MOVIE SHOWTIMES -->
+  <section class="showtimes-section">
+    <div id="movieDatePickerContainer" style="display:none; margin-bottom: 2rem;">
+      <h3 class="date-picker-label" style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--white); margin-bottom: 16px; display: block;">Select Advanced Booking Date</h3>
+      <div class="date-picker" id="detailDatePicker" style="display: flex; flex-wrap: nowrap; gap: 10px; overflow-x: auto; padding-bottom: 10px;">
+        <!-- Dates populated via JS -->
+      </div>
+    </div>
+    <h2 class="showtimes-header">Available Showtimes</h2>
+    <div id="movieShowtimes">
+      <!-- Rendered dynamically via JS -->
+    </div>
+  </section>
+
+
+
+
+  <script type="module">
+    import { moviesData } from './js/movies-data.js';
+
+    function renderMovieDetails() {
+      const params = new URLSearchParams(window.location.search);
+      let movieId = parseInt(params.get('id'));
+      
+      // Default to movie 1 if none provided
+      if (!movieId || isNaN(movieId)) movieId = 1;
+
+      const movie = moviesData.find(m => m.id === movieId);
+      if (!movie) return;
+
+      document.title = movie.title + " — NokorPass";
+
+      // Render Hero
+      const hero = document.getElementById('movieHero');
+      hero.innerHTML = `
+        <div class="hero-poster">
+          <img src="assets/${encodeURI(movie.image)}" alt="${movie.title}">
+        </div>
+        <div class="hero-info">
+          <h1 class="hero-title">${movie.title}</h1>
+          <div class="hero-meta">
+            <span class="hero-rating">★ ${movie.rating}</span>
+            <span>${movie.duration}</span>
+            <span>|</span>
+            <span>${movie.genre}</span>
+            <span>|</span>
+            <span>Release: ${movie.releaseDate}</span>
+          </div>
+          <p class="hero-synopsis">${movie.synopsis}</p>
+          <div class="hero-trailer">
+            <iframe src="${movie.trailer}?autoplay=0" allowfullscreen></iframe>
+          </div>
+        </div>
+      `;
+
+      // Render Showtimes
+      const showtimesContainer = document.getElementById('movieShowtimes');
+      
+      const fCinema = params.get('cinema');
+      const fLocation = params.get('location');
+      const fTheatre = params.get('theatre');
+      const fDate = params.get('date');
+      
+      const today = new Date().toISOString().split('T')[0];
+      const isComingSoon = movie.releaseDate > today;
+      let selectedDateStr = fDate || (isComingSoon ? movie.releaseDate : ('Today, ' + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })));
+
+      if (isComingSoon) {
+        const pickerContainer = document.getElementById('movieDatePickerContainer');
+        const picker = document.getElementById('detailDatePicker');
+        pickerContainer.style.display = 'block';
+
+        const startDate = new Date(movie.releaseDate);
+        
+        for (let i = 0; i < 14; i++) {
+          const d = new Date(startDate);
+          d.setDate(d.getDate() + i);
+          
+          const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+          const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+          const day = dayNames[d.getDay()];
+          const dateNum = d.getDate();
+          const month = monthNames[d.getMonth()];
+          const label = i === 0 ? 'Release' : day;
+          const formattedDate = `${label}, ${dateNum} ${month}`;
+          
+          const btn = document.createElement('button');
+          const isMatch = fDate ? (fDate === formattedDate) : (i === 0);
+          btn.className = 'date-btn' + (isMatch ? ' active' : '');
+          
+          if (isMatch && !fDate && i === 0) {
+            selectedDateStr = formattedDate;
+          }
+
+          btn.innerHTML = `
+            <span class="date-btn-day">${label}</span>
+            <span class="date-btn-date">${dateNum}</span>
+            <span class="date-btn-month">${month}</span>
+          `;
+          
+          btn.addEventListener('click', () => {
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('date', formattedDate);
+            window.location.href = currentUrl.toString();
+          });
+          
+          picker.appendChild(btn);
+        }
+      }
+
+      document.querySelector('.showtimes-header').textContent = `Available Showtimes for ${selectedDateStr}`;
+
+      let stHtml = '';
+
+      // Mock random times
+      const mockTimes = ['09:30 AM', '11:15 AM', '01:45 PM', '04:20 PM', '07:00 PM', '09:45 PM'];
+
+      movie.cinemas.forEach(cinema => {
+        if (fCinema && cinema.name !== fCinema) return;
+
+        let hasValidLocations = false;
+        let cinemaHtml = `
+          <div class="cinema-block">
+            <h3 class="cinema-block-header">${cinema.name}</h3>
+        `;
+
+        cinema.locations.forEach(loc => {
+          if (fLocation && loc !== fLocation) return;
+          
+          let hasValidTheatres = false;
+          let locHtml = `<div class="location-group">
+            <div class="location-name">📍 ${loc} Branch</div>
+          `;
+
+          cinema.theatreTypes.forEach(type => {
+            if (fTheatre && type !== fTheatre) return;
+
+            hasValidTheatres = true;
+            hasValidLocations = true;
+
+            // Randomly pick a few times for realism
+            const timesPool = mockTimes.filter(() => Math.random() > 0.3);
+            if (timesPool.length === 0) timesPool.push('07:00 PM'); // Guarantee at least 1 time
+
+            locHtml += `
+              <div class="format-group">
+                <div class="format-label">${type}</div>
+                <div class="times-list">
+                  ${timesPool.map((t, idx) => {
+                    const hallName = (type === '2D' || type === '3D') ? `Hall ${idx + 1}` : `${type} Hall`;
+                    return `<button class="time-btn" onclick="window.location.href='booking.html?id=${movie.id}&movie_title=${encodeURIComponent(movie.title)}&cinema=${encodeURIComponent(cinema.name)}&location=${encodeURIComponent(loc)}&type=${encodeURIComponent(type)}&hall=${encodeURIComponent(hallName)}&time=${encodeURIComponent(t)}&date=${encodeURIComponent(selectedDateStr)}'"><span style="display:block; font-size: 0.7em; opacity: 0.7; margin-bottom: 2px;">${hallName}</span>${t}</button>`;
+                  }).join('')}
+                </div>
+              </div>
+            `;
+          });
+          locHtml += `</div>`;
+          
+          if (hasValidTheatres) {
+             cinemaHtml += locHtml;
+          }
+        });
+        cinemaHtml += `</div>`;
+
+        if (hasValidLocations) {
+           stHtml += cinemaHtml;
+        }
+      });
+
+      if (stHtml === '') {
+        stHtml = '<p style="color: var(--muted);">No showtimes found for the selected filters.</p>';
+      }
+
+      showtimesContainer.innerHTML = stHtml;
+    }
+
+    renderMovieDetails();
+
+  </script>
+</body>
+</html>

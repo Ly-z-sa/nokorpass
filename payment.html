@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment — NokorPass</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/pages/payment.css" />
+    <script type="module" src="js/auth-guard.js"></script>
+    <script type="module" src="js/legals-init.js"></script>
+    </head>
+<body>
+    <script src="js/global-layout.js"></script>
+    
+  <div class="payment-container">
+    
+    <div id="paymentSelection">
+      <div class="payment-title">Checkout for <span>Movie</span></div>
+      
+      <div class="payment-methods">
+        <div class="method-card" data-name="ABA Bank">
+          <img src="assets/aba.png" class="method-logo" style="filter:none; opacity:1; border-radius: 8px;">
+          <span class="method-name">ABA Pay</span>
+        </div>
+        <div class="method-card" data-name="KHQR">
+          <img src="assets/KHQR_Logo.png" class="method-logo" style="filter:none; opacity:1;">
+          <span class="method-name">Bakong KHQR</span>
+        </div>
+        <div class="method-card" data-name="ACLEDA Pay">
+          <img src="assets/acleda.jpg" class="method-logo" style="filter:none; opacity:1; border-radius: 8px;">
+          <span class="method-name">ACLEDA Pay</span>
+        </div>
+        <div class="method-card" data-name="Visa/Mastercard">
+          <div style="display:flex; gap:10px; align-items: center;">
+            <img src="assets/visa.png" style="height:20px; border-radius: 4px;">
+            <img src="assets/mastercard_logo.webp" style="height:32px; border-radius: 4px;">
+          </div>
+          <span class="method-name" style="margin-top: 10px;">Credit / Debit Card</span>
+        </div>
+      </div>
+      
+      <div style="text-align:center; color: var(--muted);">
+        Total Amount Due: <strong style="color:var(--white); font-size: 1.5rem;"><span id="headerTotal">0.00</span></strong>
+      </div>
+    </div>
+
+    <div id="successView" class="success-view">
+      <h2 style="font-family: 'Syne', sans-serif; font-size: 2rem; color: #4ade80; margin-bottom: 30px;">Payment Successful!</h2>
+      
+      <div id="ticketExport" class="ticket-outer">
+        <!-- Circular corner notches -->
+        <div class="notch notch-tl"></div>
+        <div class="notch notch-tr"></div>
+        <div class="notch notch-bl"></div>
+        <div class="notch notch-br"></div>
+
+        <!-- Left Part: Main Ticket -->
+        <div class="ticket-main">
+          <div class="ticket-main-header">
+            <span class="brand">
+              <svg class="brand-icon-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+              NOKORPASS
+            </span>
+            <span class="serial" id="tOrderId">—</span>
+          </div>
+          <div class="ticket-main-body">
+            <!-- Background watermark line art SVG -->
+            <svg class="ticket-watermark" viewBox="0 0 100 100" fill="none" stroke="currentColor">
+              <path d="M35,80 L25,40 L75,40 L65,80 Z" stroke-width="2" />
+              <line x1="40" y1="40" x2="45" y2="80" stroke-width="1.5" />
+              <line x1="50" y1="40" x2="50" y2="80" stroke-width="1.5" />
+              <line x1="60" y1="40" x2="55" y2="80" stroke-width="1.5" />
+              <circle cx="30" cy="35" r="6" stroke-width="2" />
+              <circle cx="40" cy="30" r="7" stroke-width="2" />
+              <circle cx="50" cy="33" r="6" stroke-width="2" />
+              <circle cx="60" cy="28" r="8" stroke-width="2" />
+              <circle cx="70" cy="36" r="6" stroke-width="2" />
+              <rect x="12" y="10" width="22" height="16" rx="2" stroke-width="2" transform="rotate(-15 20 20)" />
+              <line x1="12" y1="18" x2="34" y2="12" stroke-width="2" transform="rotate(-15 20 20)" />
+            </svg>
+
+            <div class="ticket-title-row">
+              <span class="ticket-admit-badge">ADMIT ONE</span>
+              <h2 id="tMovie" class="ticket-movie-title">Loading…</h2>
+            </div>
+            
+            <div class="ticket-info-grid">
+              <div class="ticket-info-item">
+                <label>Cinema</label>
+                <span id="tCinema">—</span>
+              </div>
+              <div class="ticket-info-item">
+                <label>Hall</label>
+                <span id="tHall">—</span>
+              </div>
+              <div class="ticket-info-item">
+                <label>Date &amp; Time</label>
+                <span id="tDateTime">—</span>
+              </div>
+              <div class="ticket-info-item">
+                <label>Format</label>
+                <span id="tFormat">—</span>
+              </div>
+              <div class="ticket-info-item" style="grid-column: span 2;">
+                <label>Seats</label>
+                <span id="tSeats">—</span>
+              </div>
+            </div>
+            
+            <div class="ticket-snacks-section" id="tfSnacks" style="display: none;">
+              <label>Snacks &amp; Combo</label>
+              <div id="tSnacks" class="ticket-snacks-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Perforation Separator -->
+        <div class="ticket-perforation">
+          <div class="perf-circle-top"></div>
+          <div class="perf-line"></div>
+          <div class="perf-circle-bottom"></div>
+        </div>
+
+        <!-- Right Part: Stub -->
+        <div class="ticket-stub">
+          <div class="ticket-stub-header">
+            <span class="stub-title">TICKET STUB</span>
+            <span id="tPrice" class="price">$0.00</span>
+          </div>
+          <div class="ticket-stub-body">
+            <div id="tMovieStub" class="stub-movie-title">Loading…</div>
+            <div class="stub-qr-wrapper">
+              <div id="qrcode"></div>
+            </div>
+            <span class="stub-scan-label">SCAN TO VERIFY</span>
+            <span id="tOrderIdBottom" class="stub-serial">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="download-section">
+        <button onclick="downloadTicket()" class="btn-download">&#8595;&nbsp; Download Ticket</button>
+        <a href="index.html" class="btn-home">Return Home</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="processingOverlay" class="processing-overlay">
+    <div class="spinner"></div>
+    <div class="processing-text">Processing Payment...</div>
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+
+    <script type="module">
+    import { auth, db } from './js/firebase-config.js';
+    import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+    const qparams = new URLSearchParams(window.location.search);
+    
+    // Movie Data for lookup if title is missing
+    const moviesData = [
+      { id: 1, title: "Avatar: Fire and Ash" },
+      { id: 2, title: "Zootopia 2" },
+      { id: 3, title: "Project Hail Mary" },
+      { id: 4, title: "Hoppers" },
+      { id: 5, title: "GOAT" },
+      { id: 6, title: "Crime 101" },
+      { id: 7, title: "Peaky Blinders: The Immortal Man" },
+      { id: 8, title: "Scream 7" }
+    ];
+
+    const movieId = parseInt(qparams.get('id'));
+    const movieLookup = moviesData.find(m => m.id === movieId);
+    
+    const movieTitle = qparams.get('movie_title') || (movieLookup ? movieLookup.title : "NokorPass Movie");
+    const cinema = qparams.get('cinema') || "SuperShow Cinema";
+    const loc = qparams.get('location') || "TK";
+    const hall = qparams.get('hall') || "Hall 1";
+    const type = qparams.get('type') || "2D";
+    const time = qparams.get('time') || "07:00 PM";
+    const rawDate = qparams.get('date') || '';
+    const date = (rawDate && !rawDate.startsWith('Today')) ? rawDate : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const seats = qparams.get('seats') || "E1, E2";
+    const total = qparams.get('final_total') || qparams.get('ticket_total') || "0.00";
+    const snacksRaw = qparams.get('snacks') || "";
+    const snackList = snacksRaw ? snacksRaw.split(',') : [];
+
+    const orderId = "TKT-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+    const snackNames = {
+      'set-a': 'Popcorn Set A', 'set-b': 'Popcorn Set B', 'set-c': 'Popcorn Set C',
+      'set-d': 'Hot Dog Combo', 'set-e': 'Nacho Fiesta', 'set-f': 'Double Refreshment', 'set-g': 'Mega Bucket'
+    };
+
+    window.startPayment = (method) => {
+      document.getElementById('processingOverlay').style.display = 'flex';
+      const pText = document.querySelector('.processing-text');
+      pText.textContent = "Connecting to " + method + "...";
+      
+      setTimeout(() => {
+        pText.textContent = "Verifying Payment...";
+        setTimeout(() => {
+          showSuccess();
+        }, 1500);
+      }, 1000);
+    }
+
+    async function showSuccess() {
+      document.getElementById('processingOverlay').style.display = 'none';
+      document.getElementById('paymentSelection').style.display = 'none';
+      document.getElementById('successView').style.display = 'block';
+      
+      // Populate Ticket UI
+      document.getElementById('tMovie').textContent = movieTitle;
+      document.getElementById('tMovieStub').textContent = movieTitle;
+      document.getElementById('tCinema').textContent = cinema + " (" + loc + ")";
+      document.getElementById('tHall').textContent = hall;
+      document.getElementById('tFormat').textContent = type;
+      document.getElementById('tDateTime').textContent = date + " at " + time;
+      document.getElementById('tSeats').textContent = seats;
+      document.getElementById('tPrice').textContent = "$" + total;
+      document.getElementById('tOrderId').textContent = orderId;
+      document.getElementById('tOrderIdBottom').textContent = orderId;
+      
+      const snackContainer = document.getElementById('tSnacks');
+      const snackBox = document.getElementById('tfSnacks');
+      if (snackList.length > 0) {
+        snackContainer.innerHTML = snackList.map(s => {
+          const [id, qty] = s.split(':');
+          return `<span class="snack-tag">${qty}x ${snackNames[id] || id}</span>`;
+        }).join('');
+        snackBox.style.display = 'block';
+      } else {
+        snackBox.style.display = 'none';
+      }
+
+      // Generate local QR
+      new QRCode(document.getElementById("qrcode"), {
+        text: orderId, width: 140, height: 140,
+        colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H
+      });
+
+      window.currentOrderId = orderId;
+
+      const qDate = qparams.get('date') || "";
+      let numericDate = qDate;
+      const parts = numericDate.split('-');
+      if (parts.length !== 3 || parts[0].length !== 4 || isNaN(Number(parts[0])) || isNaN(Number(parts[1])) || isNaN(Number(parts[2]))) {
+        numericDate = new Date().toISOString().split('T')[0];
+      }
+
+      // 🔥 SAVE TO FIRESTORE 🔥
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          await addDoc(collection(db, "tickets"), {
+            uid: user.uid,
+            orderId, movieTitle, cinema, loc, hall, type, time, date, numericDate, seats, total, snackList,
+            createdAt: serverTimestamp()
+          });
+          console.log("Ticket saved to Firestore!");
+        }
+      } catch (e) {
+        console.error("Error saving ticket: ", e);
+      }
+    }
+
+    // Header total injection logic for module
+    const headerTotal = new URLSearchParams(window.location.search).get('final_total') || '0.00';
+    if(document.getElementById('headerTotal')) document.getElementById('headerTotal').textContent = headerTotal;
+
+    // Attach listeners
+    document.querySelectorAll('.method-card').forEach(card => {
+      card.addEventListener('click', () => startPayment(card.getAttribute('data-name')));
+    });
+
+    window.downloadTicket = () => {
+      const ticket = document.getElementById('ticketExport');
+      html2canvas(ticket, { backgroundColor: null, scale: 3, useCORS: true }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'NokorPass-Ticket-' + (window.currentOrderId || 'ticket') + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    };
+</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snack Add-ons — NokorPass</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/pages/snacks.css" />
+    <script type="module" src="js/auth-guard.js"></script>
+    <script type="module" src="js/legals-init.js"></script>
+    </head>
+<body>
+    <script src="js/global-layout.js"></script>
+    
+  <div class="snacks-container">
+    <div class="snacks-header">
+      <h1>Crave something more?</h1>
+      <p>Pre-order your favorite snacks now and skip the queue at the cinema.</p>
+    </div>
+
+    <div class="snacks-grid" id="snacksGrid">
+      <!-- Dynamic snacks -->
+    </div>
+  </div>
+
+  <div class="booking-footer">
+    <div class="booking-summary">
+      <span class="summary-label">Estimated Total</span>
+      <div class="summary-total">$<span id="grandTotal">0.00</span><span id="snackExtra"></span></div>
+    </div>
+    <div class="action-btns">
+      <button class="btn-skip" id="btnSkip">Skip Add-ons</button>
+      <button class="btn-confirm" id="btnConfirm">Continue to Payment</button>
+    </div>
+  </div>
+
+
+    <script>
+    const snackData = [
+      { id: 'set-a', name: 'Caramel Popcorn Set A', desc: 'Large Caramel Popcorn + 2 Medium Cokes', price: 7.50, img: 'assets/snack-popcorn.png' },
+      { id: 'set-b', name: 'Sweet Popcorn Set B', desc: 'Large Sweet Popcorn + 2 Medium Cokes', price: 7.50, img: 'assets/snack-popcorn.png' },
+      { id: 'set-c', name: 'Mixed Popcorn Set C', desc: 'Large Mixed Popcorn + 2 Large Cokes', price: 9.00, img: 'assets/snack-popcorn.png' },
+      { id: 'set-d', name: 'Hot Dog Combo', desc: 'Premium Hot Dog + 1 Medium Coke', price: 5.00, img: 'assets/snack-hotdog.png' },
+      { id: 'set-e', name: 'Nacho Fiesta', desc: 'Crispy Tortilla Chips + Cheese Sauce + 1 Medium Coke', price: 5.50, img: 'assets/snack-nachos.png' },
+      { id: 'set-f', name: 'Double Refreshment', desc: '2 Large Drinks of your choice', price: 4.00, img: 'assets/snack-refreshment.png' },
+      { id: 'set-g', name: 'Mega Bucket', desc: 'Extra Large Popcorn Bucket for the real movie lovers', price: 10.00, img: 'assets/snack-popcorn.png' }
+    ];
+
+    let queryParams = new URLSearchParams(window.location.search);
+    let ticketTotal = parseFloat(queryParams.get('ticket_total')) || 0;
+    let selectedSnacks = {}; // { snackId: quantity }
+
+    function renderSnacks() {
+      const grid = document.getElementById('snacksGrid');
+      grid.innerHTML = snackData.map(snack => `
+        <div class="snack-card">
+          <img src="${snack.img}" alt="${snack.name}" class="snack-image">
+          <div class="snack-info">
+            <h3 class="snack-name">${snack.name}</h3>
+            <p class="snack-desc">${snack.desc}</p>
+            <div class="snack-footer">
+              <span class="snack-price">$${snack.price.toFixed(2)}</span>
+              <div class="quantity-control">
+                <button class="qty-btn" onclick="updateQty('${snack.id}', -1)">−</button>
+                <span class="qty-num" id="qty-${snack.id}">0</span>
+                <button class="qty-btn" onclick="updateQty('${snack.id}', 1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.updateQty = function(id, delta) {
+      if (!selectedSnacks[id]) selectedSnacks[id] = 0;
+      selectedSnacks[id] = Math.max(0, selectedSnacks[id] + delta);
+      document.getElementById(`qty-${id}`).textContent = selectedSnacks[id];
+      updateTotal();
+    };
+
+    function updateTotal() {
+      let snackTotal = 0;
+      snackData.forEach(s => {
+        snackTotal += (selectedSnacks[s.id] || 0) * s.price;
+      });
+      
+      const total = ticketTotal + snackTotal;
+      document.getElementById('grandTotal').textContent = total.toFixed(2);
+      
+      if (snackTotal > 0) {
+        document.getElementById('snackExtra').textContent = ` (Including $${snackTotal.toFixed(2)} Snacks)`;
+      } else {
+        document.getElementById('snackExtra').textContent = '';
+      }
+    }
+
+    document.getElementById('btnSkip').addEventListener('click', () => {
+      window.location.href = 'payment.html?' + queryParams.toString();
+    });
+
+    document.getElementById('btnConfirm').addEventListener('click', () => {
+      // Append snacks to query
+      const snackParams = Object.entries(selectedSnacks)
+        .filter(([_, qty]) => qty > 0)
+        .map(([id, qty]) => `${id}:${qty}`)
+        .join(',');
+      
+      if (snackParams) queryParams.set('snacks', snackParams);
+      
+      let finalTotal = ticketTotal;
+      snackData.forEach(s => { finalTotal += (selectedSnacks[s.id] || 0) * s.price; });
+      queryParams.set('final_total', finalTotal.toFixed(2));
+      
+      window.location.href = 'payment.html?' + queryParams.toString();
+    });
+
+    // Initialize
+    document.getElementById('grandTotal').textContent = ticketTotal.toFixed(2);
+    renderSnacks();
+</script>
+</body>
+</html>

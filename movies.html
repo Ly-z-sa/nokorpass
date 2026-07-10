@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <title>Now in Theatres — NokorPass</title>
+  <!-- Open Graph / Social Preview -->
+  <meta property="og:title" content="Now in Theatres — NokorPass" />
+  <meta property="og:description" content="Book your tickets for all movies currently showing across our cinemas." />
+  <meta property="og:image" content="assets/project-hail-mary.avif" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="/movies.html" />
+  <meta property="og:site_name" content="NokorPass" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Now in Theatres — NokorPass" />
+  <meta name="twitter:description" content="Book your tickets for all movies currently showing across our cinemas." />
+  <meta name="twitter:image" content="assets/project-hail-mary.avif" />
+  <link rel="image_src" href="assets/project-hail-mary.avif" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/pages/movies.css" />
+<script type="module" src="js/auth-guard.js"></script>
+  </head>
+
+<body>
+  <script src="js/global-layout.js"></script>
+
+  <!-- PAGE HEADER -->
+  <section class="page-header" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+    <h1 id="mainPageTitle">Now in Theatres</h1>
+    <p id="mainPageDesc">Book your tickets for all movies currently showing across our cinemas</p>
+    
+    <!-- TABS -->
+    <div class="movies-tabs" style="display: flex; gap: 1rem; margin-top: 2rem; justify-content: center;">
+      <button class="tab-btn active" data-tab="now-showing" style="padding: 10px 24px; border: none; background: var(--accent); color: var(--white); border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">Now Showing</button>
+      <button class="tab-btn" data-tab="coming-soon" style="padding: 10px 24px; border: 1px solid var(--border); background: transparent; color: var(--muted); border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">Coming Soon</button>
+    </div>
+  </section>
+
+  <!-- FILTERS -->
+  <section class="filters-section" id="filtersSection">
+    <span class="filters-title">Filter Movies</span>
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label class="filter-label">Cinema</label>
+        <div class="custom-dropdown" id="cinemaDropdown" data-value="">
+          <div class="dropdown-selected"><span>All Cinemas</span> <i class="chevron"></i></div>
+          <div class="dropdown-options">
+            <div data-value="" class="selected">All Cinemas</div>
+            <div data-value="SuperShow Cinema">SuperShow Cinema</div>
+            <div data-value="MultiplexCity">MultiplexCity</div>
+            <div data-value="Happy Cinema">Happy Cinema</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Location</label>
+        <div class="custom-dropdown" id="locationDropdown" data-value="">
+          <div class="dropdown-selected"><span>All Locations</span> <i class="chevron"></i></div>
+          <div class="dropdown-options">
+            <div data-value="" class="selected">All Locations</div>
+            <div data-value="TK">TK</div>
+            <div data-value="FunMall">FunMall</div>
+            <div data-value="Aeon1">Aeon1</div>
+            <div data-value="Aeon2">Aeon2</div>
+            <div data-value="Aeon3">Aeon3</div>
+            <div data-value="KMall">KMall</div>
+            <div data-value="Sorya Mall">Sorya Mall</div>
+            <div data-value="Noro Mall">Noro Mall</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Theatre Type</label>
+        <div class="custom-dropdown" id="theatreDropdown" data-value="">
+          <div class="dropdown-selected"><span>All Types</span> <i class="chevron"></i></div>
+          <div class="dropdown-options">
+            <div data-value="" class="selected">All Types</div>
+            <div data-value="2D">2D</div>
+            <div data-value="3D">3D</div>
+            <div data-value="4DX">4DX</div>
+            <div data-value="ScreenX">ScreenX</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="date-picker-section">
+      <label class="date-picker-label">Select Date</label>
+      <div class="date-picker" id="datePicker">
+        <!-- Date buttons will be populated here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- MOVIES GRID -->
+  <section class="movies-container">
+    <div class="movies-header">
+      <h2 class="movies-title">Featured Movies</h2>
+      <span class="movies-count"><span id="movieCount">0</span> movies showing</span>
+    </div>
+
+    <div class="movies-grid" id="moviesGrid">
+      <!-- Movies will be populated here -->
+    </div>
+
+    <div id="noResults" class="no-results" style="display: none;">
+      <h3>No movies found</h3>
+      <p>Try adjusting your filters</p>
+    </div>
+  </section>
+
+
+
+  <script type="module">
+    import { moviesData } from './js/movies-data.js';
+    import { renderMovieCard } from './js/movie-cards.js';
+
+    // Cinema to location mapping
+    const cinemaLocations = {
+      "SuperShow Cinema": ["TK", "FunMall", "Aeon1"],
+      "MultiplexCity": ["Aeon1", "Aeon2", "Aeon3", "KMall"],
+      "Happy Cinema": ["Aeon2", "Aeon3", "Sorya Mall", "Noro Mall"]
+    };
+
+    // Cinema to theatre types mapping
+    const cinemaTheatreTypes = {
+      "SuperShow Cinema": ["2D", "3D", "4DX", "ScreenX"],
+      "MultiplexCity": ["2D", "3D", "ScreenX"],
+      "Happy Cinema": ["2D", "3D", "4DX", "ScreenX"]
+    };
+
+    // Render movies
+    function renderMovies(moviesToShow) {
+      const grid = document.getElementById('moviesGrid');
+      const count = document.getElementById('movieCount');
+      const noResults = document.getElementById('noResults');
+
+      const selectedCinema = document.getElementById('cinemaDropdown')?.getAttribute('data-value') || '';
+      const selectedLocation = document.getElementById('locationDropdown')?.getAttribute('data-value') || '';
+      const selectedTheatre = document.getElementById('theatreDropdown')?.getAttribute('data-value') || '';
+      const selectedDate = document.querySelector('.date-btn.active')?.dataset.date || '';
+
+      const queryParams = new URLSearchParams();
+      if (selectedCinema) queryParams.set('cinema', selectedCinema);
+      if (selectedLocation) queryParams.set('location', selectedLocation);
+      if (selectedTheatre) queryParams.set('theatre', selectedTheatre);
+      if (selectedDate) queryParams.set('date', selectedDate);
+      
+      const queryString = queryParams.toString() ? '&' + queryParams.toString() : '';
+
+      if (moviesToShow.length === 0) {
+        grid.style.display = 'none';
+        noResults.style.display = 'block';
+        count.textContent = '0';
+        return;
+      }
+
+      grid.style.display = 'grid';
+      noResults.style.display = 'none';
+      count.textContent = moviesToShow.length;
+
+      grid.innerHTML = moviesToShow
+        .map((movie) => renderMovieCard(movie, { queryString }))
+        .join('');
+    }
+
+    // Filter movies
+    function filterMovies() {
+      const selectedCinema = document.getElementById('cinemaDropdown')?.getAttribute('data-value') || '';
+      const selectedLocation = document.getElementById('locationDropdown')?.getAttribute('data-value') || '';
+      const selectedTheatre = document.getElementById('theatreDropdown')?.getAttribute('data-value') || '';
+      const today = new Date().toISOString().split('T')[0];
+      const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab || 'now-showing';
+
+      const filtered = moviesData.filter(movie => {
+        let cinemaMatch = true;
+        let locationMatch = true;
+        let theatreMatch = true;
+        let dateMatch = true;
+        let tabMatch = true;
+
+        if (activeTab === 'now-showing') {
+          tabMatch = movie.releaseDate <= today;
+        } else {
+          tabMatch = movie.releaseDate > today;
+        }
+
+        // Cinema filter
+        if (selectedCinema) {
+          cinemaMatch = movie.cinemas.some(c => c.name === selectedCinema);
+        }
+
+        // Location filter
+        if (selectedLocation) {
+          if (selectedCinema) {
+            // If cinema is selected, check if that cinema has the location
+            const cinemaData = movie.cinemas.find(c => c.name === selectedCinema);
+            locationMatch = cinemaData && cinemaData.locations.includes(selectedLocation);
+          } else {
+            // Otherwise, check if any cinema has this location
+            locationMatch = movie.cinemas.some(c => c.locations.includes(selectedLocation));
+          }
+        }
+
+        // Theatre type filter
+        if (selectedTheatre) {
+          if (selectedCinema) {
+            // If cinema is selected, check if that cinema has the theatre type
+            const cinemaData = movie.cinemas.find(c => c.name === selectedCinema);
+            theatreMatch = cinemaData && cinemaData.theatreTypes.includes(selectedTheatre);
+          } else {
+            // Otherwise, check if any cinema has this theatre type
+            theatreMatch = movie.cinemas.some(c => c.theatreTypes.includes(selectedTheatre));
+          }
+        }
+
+        /* Date picker applies to booking links only — keep full catalog visible */
+        dateMatch = true;
+
+        return cinemaMatch && locationMatch && theatreMatch && dateMatch && tabMatch;
+      });
+
+      renderMovies(filtered);
+    }
+
+    // Initialize date picker
+    function initializeDatePicker() {
+      const datePicker = document.getElementById('datePicker');
+      const today = new Date();
+
+      for (let i = 0; i < 14; i++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() + i);
+
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        const day = dayNames[date.getDay()];
+        const dateNum = date.getDate();
+        const month = monthNames[date.getMonth()];
+        const dateStr = date.toISOString().split('T')[0];
+        const label = i === 0 ? 'Today' : day;
+
+        const btn = document.createElement('button');
+        btn.className = 'date-btn' + (i === 0 ? ' active' : '');
+        btn.dataset.date = dateStr;
+        btn.innerHTML = `
+          <span class="date-btn-day">${label}</span>
+          <span class="date-btn-date">${dateNum}</span>
+          <span class="date-btn-month">${month}</span>
+        `;
+
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+          e.target.closest('.date-btn').classList.add('active');
+          filterMovies();
+        });
+
+        datePicker.appendChild(btn);
+      }
+
+      // Add mouse wheel scroll support
+      datePicker.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        datePicker.scrollLeft += e.deltaY > 0 ? 100 : -100;
+      });
+    }
+
+    function updateDynamicFilters(selectedCinema) {
+      const locationDropdown = document.getElementById('locationDropdown');
+      const locationOptions = locationDropdown.querySelector('.dropdown-options');
+      const locationText = locationDropdown.querySelector('.dropdown-selected span');
+
+      const theatreDropdown = document.getElementById('theatreDropdown');
+      const theatreOptions = theatreDropdown.querySelector('.dropdown-options');
+      const theatreText = theatreDropdown.querySelector('.dropdown-selected span');
+
+      if (selectedCinema) {
+        const availableLocations = cinemaLocations[selectedCinema];
+        let optionsHTML = '<div data-value="" class="selected">All Locations</div>';
+        availableLocations.forEach(loc => {
+          optionsHTML += `<div data-value="${loc}">${loc}</div>`;
+        });
+        locationOptions.innerHTML = optionsHTML;
+      } else {
+        locationOptions.innerHTML = `
+          <div data-value="" class="selected">All Locations</div>
+          <div data-value="TK">TK</div>
+          <div data-value="FunMall">FunMall</div>
+          <div data-value="Aeon1">Aeon1</div>
+          <div data-value="Aeon2">Aeon2</div>
+          <div data-value="Aeon3">Aeon3</div>
+          <div data-value="KMall">KMall</div>
+          <div data-value="Sorya Mall">Sorya Mall</div>
+          <div data-value="Noro Mall">Noro Mall</div>
+        `;
+      }
+      locationDropdown.setAttribute('data-value', '');
+      locationText.textContent = 'All Locations';
+
+      if (selectedCinema) {
+        const availableTheatres = cinemaTheatreTypes[selectedCinema];
+        let theatreHTML = '<div data-value="" class="selected">All Types</div>';
+        availableTheatres.forEach(theatre => {
+          theatreHTML += `<div data-value="${theatre}">${theatre}</div>`;
+        });
+        theatreOptions.innerHTML = theatreHTML;
+      } else {
+        theatreOptions.innerHTML = `
+          <div data-value="" class="selected">All Types</div>
+          <div data-value="2D">2D</div>
+          <div data-value="3D">3D</div>
+          <div data-value="4DX">4DX</div>
+          <div data-value="ScreenX">ScreenX</div>
+        `;
+      }
+      theatreDropdown.setAttribute('data-value', '');
+      theatreText.textContent = 'All Types';
+    }
+
+    function setupDropdowns() {
+      document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+        const selectedBox = dropdown.querySelector('.dropdown-selected');
+        const selectedText = selectedBox.querySelector('span');
+
+        selectedBox.addEventListener('click', (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.custom-dropdown').forEach(d => {
+            if (d !== dropdown) d.classList.remove('active');
+          });
+          dropdown.classList.toggle('active');
+        });
+
+        dropdown.addEventListener('click', (e) => {
+          const option = e.target.closest('.dropdown-options div');
+          if (!option) return;
+          e.stopPropagation();
+          const value = option.getAttribute('data-value') || '';
+          dropdown.setAttribute('data-value', value);
+          selectedText.textContent = option.textContent;
+          dropdown.querySelectorAll('.dropdown-options div').forEach(opt => opt.classList.remove('selected'));
+          option.classList.add('selected');
+          dropdown.classList.remove('active');
+          if (dropdown.id === 'cinemaDropdown') updateDynamicFilters(value);
+          filterMovies();
+        });
+      });
+
+      document.addEventListener('click', () => {
+        document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('active'));
+      });
+    }
+
+    function processUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      const cinemaQuery = params.get('cinema');
+      const locationQuery = params.get('location');
+      const tabQuery = params.get('tab');
+
+      if (tabQuery) {
+        const tabBtn = document.querySelector(`.tab-btn[data-tab="${tabQuery}"]`);
+        if (tabBtn) tabBtn.click();
+      }
+
+      if (cinemaQuery) {
+        const cinemaDropdown = document.getElementById('cinemaDropdown');
+        const cinemaOptions = cinemaDropdown.querySelectorAll('.dropdown-options div');
+        const cinemaOpt = Array.from(cinemaOptions).find(o => o.getAttribute('data-value') === cinemaQuery);
+        if (cinemaOpt) {
+          cinemaDropdown.setAttribute('data-value', cinemaQuery);
+          cinemaDropdown.querySelector('.dropdown-selected span').textContent = cinemaQuery;
+          cinemaOptions.forEach(opt => opt.classList.remove('selected'));
+          cinemaOpt.classList.add('selected');
+          updateDynamicFilters(cinemaQuery);
+        }
+      }
+
+      if (locationQuery) {
+        const locationDropdown = document.getElementById('locationDropdown');
+        const locationOptions = locationDropdown.querySelectorAll('.dropdown-options div');
+        const locationOpt = Array.from(locationOptions).find(o => o.getAttribute('data-value') === locationQuery);
+        if (locationOpt) {
+          locationDropdown.setAttribute('data-value', locationQuery);
+          locationDropdown.querySelector('.dropdown-selected span').textContent = locationQuery;
+          locationOptions.forEach(opt => opt.classList.remove('selected'));
+          locationOpt.classList.add('selected');
+        }
+      }
+
+      filterMovies();
+    }
+
+    window.openTrailer = function (videoId) {
+      const id = String(videoId).replace(/\?.*$/, '');
+      const modal = document.getElementById('trailerModal');
+      const container = document.getElementById('trailerContainer');
+      container.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      modal.style.display = 'flex';
+      setTimeout(() => modal.classList.add('active'), 10);
+    };
+
+    window.closeTrailer = function () {
+      const modal = document.getElementById('trailerModal');
+      const container = document.getElementById('trailerContainer');
+      modal.classList.remove('active');
+      setTimeout(() => {
+        modal.style.display = 'none';
+        container.innerHTML = '';
+      }, 400);
+    };
+
+    document.getElementById('trailerModal').addEventListener('click', (e) => {
+      if (e.target.id === 'trailerModal') window.closeTrailer();
+    });
+
+    function setupTabs() {
+      const tabs = document.querySelectorAll('.tab-btn');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+          tabs.forEach(t => {
+            t.classList.remove('active');
+            t.style.background = 'transparent';
+            t.style.color = 'var(--muted)';
+            t.style.border = '1px solid var(--border)';
+          });
+          const target = e.target;
+          target.classList.add('active');
+          target.style.background = 'var(--accent)';
+          target.style.color = 'var(--white)';
+          target.style.border = 'none';
+          
+          const filtersSection = document.getElementById('filtersSection');
+          if (target.dataset.tab === 'coming-soon') {
+            filtersSection.style.display = 'none';
+            document.querySelector('.movies-title').textContent = 'Coming Soon';
+            document.getElementById('mainPageTitle').textContent = 'Coming Soon';
+            document.getElementById('mainPageDesc').textContent = 'Pre-book your tickets for upcoming movies before they release';
+            document.querySelector('.movies-count').innerHTML = `<span id="movieCount">0</span> upcoming movies`;
+          } else {
+            filtersSection.style.display = 'block';
+            document.querySelector('.movies-title').textContent = 'Featured Movies';
+            document.getElementById('mainPageTitle').textContent = 'Now in Theatres';
+            document.getElementById('mainPageDesc').textContent = 'Book your tickets for all movies currently showing across our cinemas';
+            document.querySelector('.movies-count').innerHTML = `<span id="movieCount">0</span> movies showing`;
+          }
+          filterMovies();
+        });
+      });
+    }
+
+    initializeDatePicker();
+    setupDropdowns();
+    setupTabs();
+    processUrlParams();
+  </script>
+
+  <!-- TRAILER MODAL -->
+  <div id="trailerModal" class="modal-overlay">
+    <button class="modal-close" onclick="closeTrailer()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    </button>
+    <div class="modal-container" id="trailerContainer">
+      <!-- Player will be injected here -->
+    </div>
+  </div>
+
+</body>
+
+</html>

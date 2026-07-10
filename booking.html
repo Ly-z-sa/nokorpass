@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seat Selection — NokorPass</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/pages/booking.css" />
+  <script type="module" src="js/auth-guard.js"></script>
+  <script type="module" src="js/legals-init.js"></script>
+  </head>
+<body>
+  <script src="js/global-layout.js"></script>
+
+  
+  <!-- BOOKING HEADER -->
+  <section class="booking-header" style="background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%); padding: 40px 60px; border-bottom: 1px solid var(--border);">
+    <div id="bookingInfo" style="max-width: 800px; margin: 0 auto; text-align: center;">
+      <h1 id="bTitle" style="font-family: 'Syne', sans-serif; font-size: 2.2rem; color: var(--white); margin-bottom: 8px;">Loading...</h1>
+      <p id="bMeta" style="color: var(--accent); font-weight: 600; font-size: 1.1rem; letter-spacing: 0.05em;"></p>
+      <p id="bDetails" style="color: var(--muted); margin-top: 8px;"></p>
+    </div>
+  </section>
+
+  <!-- SEAT MAP -->
+  <section class="seat-selection-container" style="padding: 60px; background: radial-gradient(circle at top center, rgba(30,30,30,1) 0%, var(--black) 60%);">
+    
+    <div class="screen-indicator">
+      <div class="screen-curve"></div>
+      <span class="screen-text">SCREEN</span>
+    </div>
+
+    <div class="seat-map" id="seatMap"></div>
+    
+    <div class="seat-legend" id="seatLegend" style="margin-top: 60px; display: flex; justify-content: center; text-align: center;"></div>
+  </section>
+
+  <!-- CHECKOUT BAR -->
+  <section class="booking-footer" style="position: sticky; bottom: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); padding: 24px 60px; display: flex; justify-content: space-between; align-items: center; z-index: 100;">
+    <div class="booking-total" style="font-family: 'Syne', sans-serif; font-size: 1.5rem; color: var(--white); font-weight: 800;">
+      Total: $<span id="totalPrice">0.00</span>
+    </div>
+    <button class="btn-primary checkout-btn" id="checkoutBtn" disabled style="padding: 16px 40px; font-size: 1.1rem; opacity: 0.5;">Checkout Ticket</button>
+  </section>
+
+
+  <script>
+    
+    const moviesData = [
+      { id: 1, title: "Avatar: Fire and Ash" },
+      { id: 2, title: "Zootopia 2" },
+      { id: 3, title: "Project Hail Mary" },
+      { id: 4, title: "Hoppers" },
+      { id: 5, title: "GOAT" },
+      { id: 6, title: "Crime 101" },
+      { id: 7, title: "Peaky Blinders: The Immortal Man" },
+      { id: 8, title: "Scream 7" }
+    ];
+
+    let basePrice = 8.00;
+    let formatType = 'premium'; // premium or standard
+    let selectedSeats = [];
+
+    function generateSeatMap() {
+      const container = document.getElementById('seatMap');
+      const legendContainer = document.getElementById('seatLegend');
+      let html = '';
+
+      if (formatType === 'premium') {
+        const rows = ['E', 'D', 'C', 'B', 'A']; 
+        rows.forEach(row => {
+          html += `<div class="seat-row premium">`;
+          html += `<div class="row-label">${row}</div>`; 
+          
+          // Left (2)
+          html += `<div class="seat-group premium">`;
+          for(let i=1; i<=2; i++) {
+            const taken = Math.random() < 0.2 ? 'taken' : '';
+            html += `<div class="seat premium gold ${taken}" data-id="${row}${i}">
+              <div class="seat-back"></div><div class="seat-base"></div><span class="seat-number">${i}</span>
+            </div>`;
+          }
+          html += `</div>`;
+          // Middle (2)
+          html += `<div class="seat-group premium">`;
+          for(let i=3; i<=4; i++) {
+            const taken = Math.random() < 0.2 ? 'taken' : '';
+            html += `<div class="seat premium gold ${taken}" data-id="${row}${i}">
+              <div class="seat-back"></div><div class="seat-base"></div><span class="seat-number">${i}</span>
+            </div>`;
+          }
+          html += `</div>`;
+          // Right (2)
+          html += `<div class="seat-group premium">`;
+          for(let i=5; i<=6; i++) {
+            const taken = Math.random() < 0.2 ? 'taken' : '';
+            html += `<div class="seat premium gold ${taken}" data-id="${row}${i}">
+              <div class="seat-back"></div><div class="seat-base"></div><span class="seat-number">${i}</span>
+            </div>`;
+          }
+          html += `</div>`;
+          
+          html += `<div class="row-label">${row}</div></div>`;
+        });
+        
+        // Premium Legend
+        legendContainer.innerHTML = `<div class="legend-item" style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+           <div class="seat premium gold legend-seat"><div class="seat-back"></div><div class="seat-base"></div></div>
+           <span style="color: var(--muted); font-size: 0.85rem;">Premium Class<br><strong style="color: var(--white); font-size: 1.1rem;">$${basePrice.toFixed(2)}</strong></span>
+         </div>`;
+
+      } else {
+        const rows = ['J', 'I', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A']; 
+        rows.forEach(row => {
+          html += `<div class="seat-row standard">`;
+          html += `<div class="row-label">${row}</div>`; 
+          
+          // Left (3)
+          html += `<div class="seat-group standard">`;
+          for(let i=1; i<=3; i++) {
+            const taken = Math.random() < 0.25 ? 'taken' : '';
+            html += `<div class="seat standard blue ${taken}" data-id="${row}${i}">
+              <div class="seat-back"></div><div class="seat-base"></div><span class="seat-number">${i}</span>
+            </div>`;
+          }
+          html += `</div>`;
+          // Middle (4)
+          html += `<div class="seat-group standard">`;
+          for(let i=4; i<=7; i++) {
+            const taken = Math.random() < 0.25 ? 'taken' : '';
+            html += `<div class="seat standard blue ${taken}" data-id="${row}${i}">
+              <div class="seat-back"></div><div class="seat-base"></div><span class="seat-number">${i}</span>
+            </div>`;
+          }
+          html += `</div>`;
+          // Right (3)
+          html += `<div class="seat-group standard">`;
+          for(let i=8; i<=10; i++) {
+            const taken = Math.random() < 0.25 ? 'taken' : '';
+            html += `<div class="seat standard blue ${taken}" data-id="${row}${i}">
+              <div class="seat-back"></div><div class="seat-base"></div><span class="seat-number">${i}</span>
+            </div>`;
+          }
+          html += `</div>`;
+          
+          html += `<div class="row-label">${row}</div></div>`;
+        });
+
+        // Standard Legend
+        legendContainer.innerHTML = `<div class="legend-item" style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+           <div class="seat standard blue legend-seat"><div class="seat-back"></div><div class="seat-base"></div></div>
+           <span style="color: var(--muted); font-size: 0.85rem;">Standard Class<br><strong style="color: var(--white); font-size: 1.1rem;">$${basePrice.toFixed(2)}</strong></span>
+         </div>`;
+      }
+
+      container.innerHTML = html;
+
+      // Add click listeners
+      document.querySelectorAll('.seat:not(.taken):not(.legend-seat)').forEach(seat => {
+        seat.addEventListener('click', function() {
+          this.classList.toggle('selected');
+          const id = this.getAttribute('data-id');
+          if (this.classList.contains('selected')) {
+            selectedSeats.push(id);
+          } else {
+            selectedSeats = selectedSeats.filter(s => s !== id);
+          }
+          updateTotal();
+        });
+      });
+    }
+
+    function updateTotal() {
+      const priceElement = document.getElementById('totalPrice');
+      const checkoutBtn = document.getElementById('checkoutBtn');
+      const total = selectedSeats.length * basePrice;
+      priceElement.textContent = total.toFixed(2);
+      
+      if (selectedSeats.length > 0) {
+        checkoutBtn.removeAttribute('disabled');
+        checkoutBtn.style.opacity = '1';
+        checkoutBtn.textContent = `Checkout (${selectedSeats.length} Tickets)`;
+      } else {
+        checkoutBtn.setAttribute('disabled', 'true');
+        checkoutBtn.style.opacity = '0.5';
+        checkoutBtn.textContent = `Checkout Ticket`;
+      }
+    }
+
+    function initBooking() {
+      const params = new URLSearchParams(window.location.search);
+      const movieId = parseInt(params.get('id')) || 1;
+      const cinema = params.get('cinema') || 'SuperShow Cinema';
+      const loc = params.get('location') || 'TK';
+      const type = params.get('type') || '2D';
+      const hall = params.get('hall') || '';
+      const time = params.get('time') || '07:00 PM';
+      const date = params.get('date') || ('Today, ' + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }));
+
+      // Setup prices
+      if (type === '2D' || type === '3D') {
+        basePrice = 4.50;
+        formatType = 'standard';
+      } else {
+        basePrice = 8.00;
+        formatType = 'premium';
+      }
+
+      const movie = moviesData.find(m => m.id === movieId);
+      if (movie) {
+        document.getElementById('bTitle').textContent = movie.title;
+        document.getElementById('bMeta').textContent = `${cinema} — ${loc} Branch ${hall ? '| ' + hall : ''}`;
+        document.getElementById('bDetails').textContent = `${type} Format | ${date} at ${time}`;
+      } else {
+        const title = params.get('movie_title') || "Movie Selection";
+        document.getElementById('bTitle').textContent = title;
+        document.getElementById('bMeta').textContent = `${cinema} — ${loc} Branch ${hall ? '| ' + hall : ''}`;
+        document.getElementById('bDetails').textContent = `${type} Format | ${date} at ${time}`;
+      }
+
+      generateSeatMap();
+    }
+
+    document.getElementById('checkoutBtn').addEventListener('click', function() {
+      const params = new URLSearchParams(window.location.search);
+      const movieTitle = document.getElementById('bTitle').textContent;
+      const movieDate = params.get('date') || ('Today, ' + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }));
+      
+      params.set('movie_title', movieTitle);
+      params.set('date', movieDate);
+      params.set('seats', selectedSeats.join(','));
+      params.set('ticket_total', (selectedSeats.length * basePrice).toFixed(2));
+      window.location.href = 'snacks.html?' + params.toString();
+    });
+
+    initBooking();
+
+  </script>
+</body>
+</html>

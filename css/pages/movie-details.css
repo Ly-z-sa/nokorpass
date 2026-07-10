@@ -1,0 +1,381 @@
+/* Page-specific: movie-details */
+
+/* ── MOVIE DETAILS HERO ── */
+    .movie-hero {
+      position: relative;
+      padding: 60px;
+      display: flex;
+      gap: 48px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+.movie-hero .hero-poster {
+      flex: 0 0 320px;
+      width: 320px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      aspect-ratio: 3/4;
+      background: var(--card);
+    }
+
+.movie-hero .hero-poster img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+.hero-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+.hero-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      color: var(--white);
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+.hero-meta {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-weight: 500;
+      flex-wrap: wrap;
+    }
+
+.hero-rating {
+      background: rgba(232, 73, 15, 0.15);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+.hero-synopsis {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 1.05rem;
+      margin-bottom: 32px;
+      max-width: 800px;
+    }
+
+.hero-trailer {
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 16/9;
+      width: 100%;
+      max-width: 700px;
+      border: 1px solid var(--border);
+      margin-top: auto;
+      background: var(--card);
+    }
+
+.hero-trailer iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+/* ── SHOWTIMES SECTION ── */
+    .showtimes-section {
+      padding: 60px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+.showtimes-header {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 40px;
+    }
+
+.cinema-block {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 32px;
+    }
+
+.cinema-block-header {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      color: var(--white);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+
+.location-group {
+      margin-bottom: 32px;
+    }
+
+.location-group:last-child {
+      margin-bottom: 0;
+    }
+
+.location-name {
+      font-weight: 600;
+      color: var(--white);
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+.format-group {
+      display: flex;
+      align-items: stretch;
+      margin-bottom: 16px;
+      gap: 20px;
+    }
+
+.format-group:last-child { margin-bottom: 0; }
+
+.format-label {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 90px;
+    }
+
+.times-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      flex: 1;
+    }
+
+.time-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--white);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+.time-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(232, 73, 15, 0.05);
+    }
+
+@media (max-width: 900px) {
+      .movie-hero {
+        flex-direction: column;
+        padding: 40px 24px;
+      }
+      .movie-hero .hero-poster {
+        flex: 0 0 auto;
+        width: min(160px, 42vw);
+        max-width: 160px;
+        margin: 0 auto;
+      }
+      .showtimes-section {
+        padding: 40px 24px;
+      }
+      .format-group {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .format-label {
+        align-self: flex-start;
+      }
+    }
+
+@media (max-width: 768px) {
+  .showtimes-header {
+    font-size: 1.5rem;
+    margin-bottom: 28px;
+  }
+
+  .cinema-block {
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  .cinema-block-header {
+    font-size: 1.2rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-synopsis {
+    font-size: 0.95rem;
+  }
+
+  .time-btn {
+    padding: 10px 14px;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .movie-hero {
+    padding: 28px 16px;
+    gap: 24px;
+  }
+
+  .movie-hero .hero-poster {
+    width: min(140px, 38vw);
+    max-width: 140px;
+  }
+
+  .hero-title {
+    font-size: clamp(1.5rem, 7vw, 2rem);
+  }
+
+  .hero-meta {
+    font-size: 0.85rem;
+    gap: 10px;
+  }
+
+  .showtimes-section {
+    padding: 28px 16px;
+  }
+
+  .location-name {
+    font-size: 1rem;
+  }
+
+  .times-list {
+    gap: 8px;
+  }
+
+  .time-btn {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 0;
+    text-align: center;
+  }
+}
+
+.date-picker-section {
+  margin-top: 30px;
+  padding-top: 30px;
+  border-top: 1px solid var(--border);
+}
+
+.date-picker-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--white);
+  margin-bottom: 16px;
+  display: block;
+}
+
+.date-picker {
+  display: grid;
+  grid-template-columns: repeat(14, 1fr);
+  gap: 12px;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 8px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.date-btn {
+  background: var(--card);
+  border: 2px solid var(--border);
+  color: var(--text);
+  padding: 16px 14px;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  min-width: 110px;
+}
+
+.date-btn:hover {
+  border-color: var(--accent);
+  background: rgba(232, 73, 15, 0.1);
+}
+
+.date-btn.active {
+  border-color: var(--accent);
+  background: rgba(232, 73, 15, 0.15);
+  color: var(--accent);
+}
+
+.date-btn-day {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.date-btn.active .date-btn-day {
+  color: var(--accent);
+}
+
+.date-btn-date {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: 'Syne', sans-serif;
+}
+
+.date-btn-month {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.date-btn.active .date-btn-month {
+  color: var(--accent);
+}
+
+@media (max-width: 768px) {
+  .date-picker {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
+  }
+  .date-btn {
+    flex: 0 0 auto;
+    min-width: 72px;
+    padding: 12px 10px;
+  }
+  .date-btn-date {
+    font-size: 1.25rem;
+  }
+}

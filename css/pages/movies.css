@@ -1,0 +1,386 @@
+/* Page-specific: movies */
+
+/* ── FILTERS SECTION ── */
+    .filters-section {
+      padding: 40px 60px;
+      border-bottom: 1px solid var(--border);
+      background: var(--dark);
+      overflow-x: hidden;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+.filters-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+
+.filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+.filter-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+.filter-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--white);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+.custom-dropdown {
+      position: relative;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      user-select: none;
+    }
+
+.dropdown-selected {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+.dropdown-selected:hover {
+      border-color: var(--accent);
+    }
+
+.custom-dropdown.active .dropdown-selected {
+      border-color: var(--accent);
+      background: rgba(232, 73, 15, 0.05);
+      border-radius: 8px 8px 0 0;
+      border-bottom-color: transparent;
+    }
+
+.dropdown-selected .chevron {
+      border: solid var(--muted);
+      border-width: 0 2px 2px 0;
+      display: inline-block;
+      padding: 3px;
+      transform: rotate(45deg);
+      transition: transform 0.2s;
+      margin-right: 4px;
+      margin-bottom: 2px;
+    }
+
+.custom-dropdown.active .chevron {
+      transform: rotate(-135deg);
+      margin-bottom: -4px;
+    }
+
+.dropdown-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      z-index: 100;
+      display: none;
+      max-height: 240px;
+      overflow-y: auto;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+    }
+
+.custom-dropdown.active .dropdown-options {
+      display: block;
+      animation: fadeDown 0.2s ease;
+    }
+
+.dropdown-options div {
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      color: var(--muted);
+    }
+
+.dropdown-options div:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--white);
+    }
+
+.dropdown-options div.selected {
+      background: rgba(232, 73, 15, 0.15);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+@keyframes fadeDown {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+/* ── DATE PICKER ── */
+    .date-picker-section {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 1px solid var(--border);
+    }
+
+.date-picker-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--white);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+.date-picker {
+      display: grid;
+      grid-template-columns: repeat(14, 1fr);
+      gap: 12px;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 8px;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+
+.date-btn {
+      background: var(--card);
+      border: 2px solid var(--border);
+      color: var(--text);
+      padding: 16px 14px;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      text-align: center;
+      min-width: 110px;
+    }
+
+.date-btn:hover {
+      border-color: var(--accent);
+      background: rgba(232, 73, 15, 0.1);
+    }
+
+.date-btn.active {
+      border-color: var(--accent);
+      background: rgba(232, 73, 15, 0.15);
+      color: var(--accent);
+    }
+
+.date-btn-day {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+.date-btn.active .date-btn-day {
+      color: var(--accent);
+    }
+
+.date-btn-date {
+      font-size: 1.5rem;
+      font-weight: 800;
+      font-family: 'Syne', sans-serif;
+    }
+
+.date-btn-month {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+.date-btn.active .date-btn-month {
+      color: var(--accent);
+    }
+
+/* ── MOVIES GRID ── */
+    .movies-container {
+      padding: 60px;
+      overflow-x: hidden;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+.movies-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.8rem;
+      letter-spacing: -0.03em;
+      color: var(--white);
+    }
+
+.movies-count {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+.no-results {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+.no-results h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+.movies-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 900px) {
+  .filters-section {
+    padding: 28px 24px;
+  }
+
+  .movies-container {
+    padding: 40px 24px;
+  }
+
+  .movies-container .movies-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+}
+
+/* Mobile: 1 per row */
+@media (max-width: 640px) {
+  .movies-container .movies-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .movies-container .card-poster {
+    aspect-ratio: 2 / 3;
+  }
+
+  .movies-container .card-poster img {
+    object-fit: contain;
+    object-position: center top;
+  }
+
+  .movies-container .movie-card {
+    overflow: visible;
+  }
+
+  .movies-container .card-body {
+    padding: 12px 14px 20px;
+    overflow: visible;
+  }
+
+  .movies-container .card-title {
+    font-size: 0.875rem;
+  }
+
+  .movies-container .card-genre {
+    font-size: 0.7rem;
+  }
+
+  .movies-container .card-desc {
+    display: block !important;
+    font-size: 0.68rem;
+    line-height: 1.5;
+    margin-top: 6px;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .movies-container .card-desc > div {
+    margin-bottom: 10px;
+  }
+
+  .movies-container .card-desc > div:last-child {
+    margin-bottom: 0;
+  }
+
+  .movies-container .card-desc strong {
+    font-size: 0.7rem;
+  }
+
+  .movies-container .card-desc span {
+    display: block;
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+}
+
+@media (max-width: 768px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .date-picker {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
+  }
+
+  .date-btn {
+    flex: 0 0 auto;
+    min-width: 72px;
+    padding: 12px 10px;
+  }
+
+  .date-btn-date {
+    font-size: 1.25rem;
+  }
+
+  .movies-title {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .filters-section,
+  .movies-container {
+    padding: 24px 16px;
+  }
+
+  .filters-title {
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+  }
+}

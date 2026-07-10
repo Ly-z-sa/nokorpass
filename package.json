@@ -1,0 +1,20 @@
+{
+  "name": "cinemart_webprod1.7.3",
+  "version": "1.7.3",
+  "description": "",
+  "main": "auth-guard.js",
+  "scripts": {
+    "build:css": "npx @tailwindcss/cli -i css/input.css -o css/global.css",
+    "watch:css": "npx @tailwindcss/cli -i css/input.css -o css/global.css --watch",
+    "build:pages": "node scripts/build/build-account.js && node scripts/build/build-auth.js && node scripts/build/build-booking.js && node scripts/build/build-payment.js && node scripts/build/build-privacy.js && node scripts/build/build-terms.js && node scripts/build/build-tickets.js && node scripts/build/build-snacks.js && node scripts/build/build-events.js",
+    "build": "npm run build:css && npm run build:pages"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.0",
+    "tailwindcss": "^4.3.0"
+  }
+}
