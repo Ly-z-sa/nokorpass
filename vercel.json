@@ -4,5 +4,6 @@
       "source": "/__/auth/action",
       "destination": "/auth-action.html"
     }
-  ]
+  ],
+  "outputDirectory": "."
 }
