@@ -1,0 +1,19 @@
+# Robots.txt for NokorPass - https://nokorpass.store/
+
+User-agent: *
+Allow: /
+Allow: /assets/
+Allow: /favicon.ico
+Allow: /favicon-48.png
+Allow: /favicon-192.png
+
+# Disallow private checkout flows, authentication, and account pages
+Disallow: /auth.html
+Disallow: /auth-action.html
+Disallow: /booking.html
+Disallow: /snacks.html
+Disallow: /payment.html
+Disallow: /tickets.html
+Disallow: /account.html
+
+Sitemap: https://nokorpass.store/sitemap.xml

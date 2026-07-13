@@ -167,27 +167,38 @@ const js = `
     renderEvents(eventsData);
   }
 
-  window.openBookingModal = (eventId) => {
-    selectedEvent = eventsData.find(e => e.id === eventId);
-    if (!selectedEvent) return;
+  window.openBookingModal = async (eventId) => {
+    // Auth gate — require login before booking
+    const { auth } = await import('./js/firebase-config.js');
+    const { onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js');
 
-    document.getElementById('modalTitle').textContent = selectedEvent.title;
-    document.getElementById('modalDetails').textContent = \`\${selectedEvent.venue} — \${selectedEvent.displayDate} at \${selectedEvent.time}\`;
+    onAuthStateChanged(auth, (user) => {
+      if (!user || !user.emailVerified) {
+        window.location.href = 'auth.html?redirect=' + encodeURIComponent(window.location.href);
+        return;
+      }
 
-    const select = document.getElementById('ticketTier');
-    select.innerHTML = Object.entries(selectedEvent.prices).map(([tier, price]) => \`
-      <option value="\${tier}" data-price="\${price}">\${tier} Tier — $\${price.toFixed(2)}</option>
-    \`).join('');
+      selectedEvent = eventsData.find(e => e.id === eventId);
+      if (!selectedEvent) return;
 
-    document.getElementById('ticketQty').value = 1;
-    updateModalPrice();
+      document.getElementById('modalTitle').textContent = selectedEvent.title;
+      document.getElementById('modalDetails').textContent = \`\${selectedEvent.venue} — \${selectedEvent.displayDate} at \${selectedEvent.time}\`;
 
-    const modal = document.getElementById('bookingModal');
-    modal.style.display = 'flex';
-    modal.style.pointerEvents = 'auto';
-    setTimeout(() => {
-      modal.style.opacity = '1';
-    }, 10);
+      const select = document.getElementById('ticketTier');
+      select.innerHTML = Object.entries(selectedEvent.prices).map(([tier, price]) => \`
+        <option value="\${tier}" data-price="\${price}">\${tier} Tier — $\${price.toFixed(2)}</option>
+      \`).join('');
+
+      document.getElementById('ticketQty').value = 1;
+      updateModalPrice();
+
+      const modal = document.getElementById('bookingModal');
+      modal.style.display = 'flex';
+      modal.style.pointerEvents = 'auto';
+      setTimeout(() => {
+        modal.style.opacity = '1';
+      }, 10);
+    });
   };
 
   window.closeBookingModal = () => {
@@ -338,11 +349,36 @@ const html = `<!DOCTYPE html>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Live Concerts & Events — NokorPass</title>
+  <meta name="robots" content="index, follow" />
+  <meta name="description" content="Book tickets for live music concerts, festivals, sports matches, and comedy standups in Cambodia. Safe booking and instant confirmation on NokorPass." />
+  <meta name="keywords" content="live events Cambodia, concerts Phnom Penh, EDM festivals Cambodia, sports matches booking, NokorPass events" />
+  <meta name="theme-color" content="#e8490f" />
+  <link rel="canonical" href="https://nokorpass.store/events.html" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:title" content="Live Concerts & Events — NokorPass" />
+  <meta property="og:description" content="Book tickets for live music concerts, festivals, sports matches, and comedy standups in Cambodia." />
+  <meta property="og:image" content="https://nokorpass.store/assets/spiderman-brandnewday.jpg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://nokorpass.store/events.html" />
+  <meta property="og:site_name" content="NokorPass" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Live Concerts & Events — NokorPass" />
+  <meta name="twitter:description" content="Book tickets for live music concerts, festivals, sports matches, and comedy standups in Cambodia." />
+  <meta name="twitter:image" content="https://nokorpass.store/assets/spiderman-brandnewday.jpg" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Live Concerts & Events — NokorPass",
+    "description": "Book tickets for live music concerts, festivals, sports matches, and comedy standups in Cambodia.",
+    "url": "https://nokorpass.store/events.html",
+    "isPartOf": { "@type": "WebSite", "name": "NokorPass", "url": "https://nokorpass.store/" }
+  }
+  </script>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/global.css" />
   <link rel="stylesheet" href="css/pages/events.css" />
-  <script type="module" src="js/auth-guard.js"></script>
   <script type="module" src="js/legals-init.js"></script>
 </head>
 <body>

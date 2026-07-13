@@ -80,6 +80,14 @@ const html = `<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terms of Service — NokorPass</title>
+    <meta name="robots" content="index, follow" />
+    <meta name="description" content="Read the NokorPass Terms of Service. Understand booking rules, payments, digital tickets, and user responsibilities for our Cambodia ticketing platform." />
+    <link rel="canonical" href="https://nokorpass.store/terms.html" />
+    <meta property="og:title" content="Terms of Service — NokorPass" />
+    <meta property="og:description" content="Booking rules, payments, and user responsibilities on NokorPass." />
+    <meta property="og:url" content="https://nokorpass.store/terms.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="NokorPass" />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/global.css" />

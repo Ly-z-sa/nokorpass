@@ -1,0 +1,1 @@
+require('./generate-seo.js');

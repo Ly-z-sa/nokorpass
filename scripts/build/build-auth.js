@@ -9,62 +9,93 @@ const css = `
 
     body { font-family: 'DM Sans', sans-serif; background: var(--black); color: var(--text); line-height: 1.6; overflow: hidden; height: 100vh; display: flex; margin: 0; }
     
-    /* Split Screen */
-    .auth-visual { flex: 1.2; background: url('auth-bg.png') center/cover no-repeat; position: relative; display: flex; align-items: flex-end; padding: 60px; }
-    .auth-visual::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, transparent 100%); }
-    .auth-visual-content { position: relative; z-index: 2; max-width: 600px; }
-    .auth-visual-content h1 { font-family: 'Syne', sans-serif; font-size: 3.5rem; font-weight: 800; color: #fff; line-height: 1.1; margin-bottom: 16px; }
-    .auth-visual-content p { color: rgba(255,255,255,0.7); font-size: 1.2rem; }
+    /* ── Split Layout ── */
+    .auth-visual { flex: 1.2; background: url('../../assets/auth-bg.png') center/cover no-repeat; position: relative; display: flex; align-items: flex-end; padding: 48px; }
+    .auth-visual::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.35) 55%, transparent 100%); }
+    .auth-visual-content { position: relative; z-index: 2; max-width: 520px; }
+    .auth-visual-content h1 { font-family: 'Syne', sans-serif; font-size: 2.8rem; font-weight: 800; color: #fff; line-height: 1.1; margin-bottom: 12px; }
+    .auth-visual-content p { color: rgba(255,255,255,0.65); font-size: 1rem; line-height: 1.6; }
+    .auth-visual-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(232,73,15,0.15); border: 1px solid rgba(232,73,15,0.35); color: var(--accent); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 5px 12px; border-radius: 20px; margin-bottom: 18px; }
 
-    .auth-form-side { flex: 0.8; display: flex; align-items: center; justify-content: center; padding: 40px; background: var(--black); position: relative; overflow-y: auto; }
+    /* ── Form Side ── */
+    .auth-form-side { flex: 0.8; display: flex; align-items: center; justify-content: center; padding: 32px; background: var(--black); position: relative; overflow-y: auto; }
     
-    .screen-curve { height: 48px; width: 100%; max-width: 600px; margin: 0 auto; border-top: 4px solid rgba(220, 38, 38, 0.8); border-radius: 50% 50% 0 0 / 100% 100% 0 0; box-shadow: 0 -15px 40px -10px rgba(220, 38, 38, 0.5); margin-bottom: 20px; }
-    .screen-text { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; letter-spacing: 0.1em; color: var(--white); }
-    
-    .auth-container { max-width: 480px; width: 100%; padding: 0; background: transparent; border: none; box-shadow: none; margin: 0; }
-    .auth-title { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; text-align: left; margin-bottom: 16px; color: var(--white); }
-    
-    .auth-form { display: flex; flex-direction: column; gap: 12px; }
-    .input-group { display: flex; flex-direction: column; gap: 6px; }
-    .input-group label { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
-    .input-group input { background: #111; border: 1px solid var(--border); border-radius: 12px; padding: 16px; color: #fff; font-size: 1rem; outline: none; transition: all 0.2s; }
-    .input-group input:focus { border-color: var(--accent); background: #1a1a1a; box-shadow: 0 0 0 4px rgba(232, 73, 15, 0.1); }
+    .auth-container { max-width: 400px; width: 100%; }
 
-    .btn-auth { background: var(--accent); color: #fff; border: none; padding: 18px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 1rem; width: 100%; margin-top: 0px;}
-    .btn-auth:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(232, 73, 15, 0.4); }
+    /* ── Brand Mark ── */
+    .auth-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; text-decoration: none; }
+    .auth-brand img { height: 30px; width: auto; display: block; }
+    .auth-brand-name { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 800; color: #fff; letter-spacing: 0.02em; }
 
-    .divider { display: flex; align-items: center; text-align: center; color: var(--muted); margin: 12px 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; }
+    /* ── Titles ── */
+    .auth-title { font-family: 'DM Sans', sans-serif; font-size: 1.6rem; font-weight: 700; color: var(--white); margin: 0 0 6px; letter-spacing: -0.4px; }
+    .auth-subtitle { color: var(--muted); font-size: 0.85rem; margin: 0 0 24px; }
+
+    /* ── Error ── */
+    .error-msg { color: #ff4b4b; background: rgba(255, 75, 75, 0.08); padding: 10px 14px; border-radius: 8px; font-size: 0.8rem; display: none; text-align: center; margin-bottom: 14px; border: 1px solid rgba(255, 75, 75, 0.2); }
+
+    /* ── Form ── */
+    .auth-form { display: flex; flex-direction: column; gap: 10px; }
+    .input-group { display: flex; flex-direction: column; gap: 4px; }
+    .input-group label { font-size: 0.75rem; font-weight: 600; color: var(--muted); letter-spacing: 0.02em; }
+    .input-group input {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 12px;
+      color: #fff;
+      font-size: 0.875rem;
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .input-group input:focus { border-color: var(--accent); background: rgba(232,73,15,0.04); box-shadow: 0 0 0 3px rgba(232, 73, 15, 0.1); }
+    .input-group input::placeholder { color: rgba(255,255,255,0.2); }
+
+    /* ── Buttons ── */
+    .btn-auth { background: var(--accent); color: #fff; border: none; padding: 11px 16px; border-radius: 9px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.875rem; font-family: 'DM Sans', sans-serif; width: 100%; letter-spacing: 0.01em; }
+    .btn-auth:hover { filter: brightness(1.1); box-shadow: 0 8px 24px rgba(232, 73, 15, 0.35); transform: translateY(-1px); }
+    .btn-auth:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .btn-google { background: rgba(255,255,255,0.06); color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 10px 16px; border-radius: 9px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s; width: 100%; font-size: 0.875rem; font-family: 'DM Sans', sans-serif; }
+    .btn-google img { height: 18px; }
+    .btn-google:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+
+    /* ── Divider ── */
+    .divider { display: flex; align-items: center; text-align: center; color: var(--muted); margin: 4px 0; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; }
     .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
-    .divider::before { margin-right: 20px; }
-    .divider::after { margin-left: 20px; }
+    .divider::before { margin-right: 14px; }
+    .divider::after { margin-left: 14px; }
 
-    .btn-google { background: #fff; color: #000; border: none; padding: 16px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: transform 0.2s; width: 100%; font-size: 1rem;}
-    .btn-google img { height: 22px; }
-    .btn-google:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1); }
-
-    .toggle-auth { text-align: center; font-size: 0.9rem; color: var(--muted); margin-top: 16px; }
-    .toggle-auth a { color: var(--accent); font-weight: 700; text-decoration: none; margin-left: 5px; }
+    /* ── Toggle ── */
+    .toggle-auth { text-align: center; font-size: 0.8rem; color: var(--muted); margin-top: 14px; }
+    .toggle-auth a { color: var(--accent); font-weight: 700; text-decoration: none; margin-left: 4px; }
     .toggle-auth a:hover { text-decoration: underline; }
 
-    /* Verification Overlay */
-    .verification-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 5000; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px; backdrop-filter: blur(10px); }
-    .verification-card { max-width: 500px; }
-    .verification-card h2 { font-family: 'Syne', sans-serif; font-size: 2.5rem; color: #fff; margin-bottom: 20px; }
-    .verification-card p { color: var(--muted); font-size: 1.1rem; margin-bottom: 40px; line-height: 1.6; }
-    .spinner { width: 60px; height: 60px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 32px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── TOS note ── */
+    .tos-note { font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-top: 2px; text-align: center; line-height: 1.5; }
+    .tos-note a { color: rgba(255,255,255,0.45); text-decoration: none; font-weight: 600; }
+    .tos-note a:hover { color: var(--accent); }
 
-    .btn-ghost { background: rgba(255, 255, 255, 0.08); color: var(--text); border: 1px solid var(--border); padding: 14px 32px; border-radius: 10px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;}
-    .btn-ghost:hover { background: rgba(255, 255, 255, 0.15); border-color: #fff; }
-    .btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }
-    
-    .verification-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 32px; }
-    .error-msg { color: #ff4b4b; background: rgba(255, 75, 75, 0.1); padding: 14px; border-radius: 10px; font-size: 0.9rem; display: none; text-align: center; margin-bottom: 24px; border: 1px solid rgba(255, 75, 75, 0.2);}
-
-    .pw-rule { font-size: 0.75rem; color: var(--muted); display: flex; align-items: center; gap: 6px; transition: color 0.2s; }
-    .pw-rule::before { content: '○'; font-size: 1rem; }
+    /* ── Password Rules ── */
+    .password-requirements { margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+    .pw-rule { font-size: 0.7rem; color: var(--muted); display: flex; align-items: center; gap: 5px; transition: color 0.2s; }
+    .pw-rule::before { content: '○'; font-size: 0.75rem; }
     .pw-rule.met { color: #4caf50; }
     .pw-rule.met::before { content: '●'; }
+
+    /* ── Verification Overlay ── */
+    .verification-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 5000; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px; backdrop-filter: blur(12px); }
+    .verification-card { max-width: 420px; }
+    .verification-card h2 { font-family: 'Syne', sans-serif; font-size: 1.75rem; color: #fff; margin-bottom: 12px; }
+    .verification-card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 28px; line-height: 1.65; }
+    .spinner { width: 48px; height: 48px; border: 3px solid rgba(255,255,255,0.08); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 24px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn-ghost-sm { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border); padding: 9px 20px; border-radius: 8px; cursor: pointer; font-size: 0.82rem; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .btn-ghost-sm:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); }
+    .verification-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
 
     @media (max-width: 1024px) {
       .auth-visual { display: none; }
@@ -249,29 +280,39 @@ const js = `
 const body = `
   <div class="auth-visual">
     <div class="auth-visual-content">
-      <h1>Your Cinema,<br>Anywhere.</h1>
-      <p>Book tickets, pre-order snacks, and manage your digital movie collection with ease.</p>
+      <div class="auth-visual-badge">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="5"/></svg>
+        NokorPass
+      </div>
+      <h1>Movies, Concerts<br>&amp; Live Events.</h1>
+      <p>One pass for all your entertainment — book tickets instantly, anywhere in Cambodia.</p>
     </div>
   </div>
 
   <div class="auth-form-side">
     <div class="auth-container">
-      <h2 class="auth-title">Welcome to NokorPass</h2>
-      <p id="authSubtitle" style="color: var(--muted); margin-top: -16px; margin-bottom: 24px; font-size: 1rem;">Sign in to your account</p>
+
+      <a href="index.html" class="auth-brand">
+        <img src="assets/favicon.svg" alt="NokorPass">
+        <span class="auth-brand-name">NokorPass</span>
+      </a>
+
+      <h2 class="auth-title">Welcome back</h2>
+      <p id="authSubtitle" class="auth-subtitle">Sign in to your account</p>
       
       <div id="errorMsg" class="error-msg"></div>
 
       <!-- Login Form -->
       <form id="loginForm" class="auth-form">
         <button type="button" onclick="handleGoogleAuth()" class="btn-google">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
           Continue with Google
         </button>
 
-        <div class="divider">or use email</div>
+        <div class="divider">or</div>
 
         <div class="input-group">
-          <label>Email Address</label>
+          <label>Email address</label>
           <input type="email" name="email" placeholder="you@example.com" required>
         </div>
         <div class="input-group">
@@ -279,41 +320,39 @@ const body = `
           <input type="password" name="password" placeholder="••••••••" required>
         </div>
         <button type="submit" class="btn-auth">Sign In</button>
-        <p style="font-size: 0.75rem; color: var(--muted); margin-top: 4px; text-align: center; line-height: 1.4;">
-          By signing in, you agree to NokorPass's <br>
-          <a href="terms.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">Terms of Service</a> and 
-          <a href="privacy.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">Privacy Policy</a>.
+        <p class="tos-note">
+          By continuing, you agree to our
+          <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a>.
         </p>
-        <p class="toggle-auth">Don't have an account? <a href="#" id="signupToggle">Sign Up</a></p>
+        <p class="toggle-auth">No account?<a href="#" id="signupToggle">Sign up free</a></p>
       </form>
 
       <!-- Signup Form -->
       <form id="signupForm" class="auth-form" style="display: none;">
         <div class="input-group">
-          <label>Full Name</label>
-          <input type="text" name="name" placeholder="John Doe" required>
+          <label>Full name</label>
+          <input type="text" name="name" placeholder="Jane Doe" required>
         </div>
         <div class="input-group">
-          <label>Email Address</label>
+          <label>Email address</label>
           <input type="email" name="email" placeholder="you@example.com" required>
         </div>
         <div class="input-group">
           <label>Password</label>
-          <input type="password" name="password" placeholder="••••••••" required>
-          <div class="password-requirements" style="margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <input type="password" name="password" placeholder="Min 6 chars" required>
+          <div class="password-requirements">
             <div id="rule-len" class="pw-rule">Min 6 chars</div>
-            <div id="rule-upper" class="pw-rule">At least 1 Upper</div>
-            <div id="rule-lower" class="pw-rule">At least 1 Lower</div>
-            <div id="rule-num" class="pw-rule">At least 1 Number</div>
+            <div id="rule-upper" class="pw-rule">1 Uppercase</div>
+            <div id="rule-lower" class="pw-rule">1 Lowercase</div>
+            <div id="rule-num" class="pw-rule">1 Number</div>
           </div>
         </div>
-        <button type="submit" class="btn-auth" disabled style="opacity: 0.5;">Create Account</button>
-        <p style="font-size: 0.75rem; color: var(--muted); margin-top: 4px; text-align: center; line-height: 1.4;">
-          By creating an account, you agree to NokorPass's <br>
-          <a href="terms.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">Terms of Service</a> and 
-          <a href="privacy.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">Privacy Policy</a>.
+        <button type="submit" class="btn-auth" disabled style="opacity: 0.45;">Create Account</button>
+        <p class="tos-note">
+          By creating an account, you agree to our
+          <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a>.
         </p>
-        <p class="toggle-auth">Already have an account? <a href="#" id="loginToggle">Sign In</a></p>
+        <p class="toggle-auth">Have an account?<a href="#" id="loginToggle">Sign in</a></p>
       </form>
     </div>
   </div>
@@ -321,14 +360,13 @@ const body = `
   <div id="verificationOverlay" class="verification-overlay">
     <div class="verification-card">
       <div class="spinner"></div>
-      <h2>Verify your Email</h2>
-      <p>We've sent a verification link to your email. This screen will update automatically once you verify.</p>
-      
+      <h2>Check your email</h2>
+      <p>We sent a verification link to your inbox. This page will update automatically once verified.</p>
       <div class="verification-actions">
-        <button id="resendBtn" onclick="handleResendEmail()" class="btn-auth">Resend Verification Link</button>
-        <div style="display: flex; gap: 12px; justify-content: center;">
-          <button onclick="window.location.reload()" class="btn-ghost">Refresh Status</button>
-          <button onclick="handleBackToLogin()" class="btn-ghost">Back to Login</button>
+        <button id="resendBtn" onclick="handleResendEmail()" class="btn-auth">Resend Verification Email</button>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+          <button onclick="window.location.reload()" class="btn-ghost-sm">Refresh Status</button>
+          <button onclick="handleBackToLogin()" class="btn-ghost-sm">Back to Login</button>
         </div>
       </div>
     </div>
@@ -341,6 +379,7 @@ const html = `<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In — NokorPass</title>
+    <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/global.css" />
@@ -356,5 +395,13 @@ const html = `<!DOCTYPE html>
 </body>
 </html>`;
 
-fs.writeFileSync(path.resolve(__dirname, '../../auth.html'), html);
-console.log('auth.html built successfully!');
+const root = path.resolve(__dirname, '../../');
+const pagesDir = path.join(root, 'css', 'pages');
+
+if (!fs.existsSync(pagesDir)) {
+  fs.mkdirSync(pagesDir, { recursive: true });
+}
+
+fs.writeFileSync(path.join(root, 'auth.html'), html, 'utf8');
+fs.writeFileSync(path.join(pagesDir, 'auth.css'), css, 'utf8');
+console.log('auth.html and css/pages/auth.css built successfully!');

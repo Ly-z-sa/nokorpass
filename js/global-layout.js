@@ -79,7 +79,7 @@ const EMBEDDED_FOOTER = `<footer id="site-footer">
           <h4>Support</h4>
           <ul>
             <li><a href="help.html">Help centre</a></li>
-            <li><a href="mailto:info@nokorpass.lizaphat.shop?subject=NokorPass%20Support">Support chat</a></li>
+            <li><a href="mailto:info@nokorpass.store?subject=NokorPass%20Support">Support chat</a></li>
             <li><a href="privacy.html">Privacy Policy</a></li>
             <li><a href="terms.html">Terms of Service</a></li>
           </ul>
@@ -87,7 +87,7 @@ const EMBEDDED_FOOTER = `<footer id="site-footer">
     </div>
 
     <div class="footer-bottom">
-      <span>© 2026 NokorPass. All rights reserved. <small class="site-version">v1.7.3</small></span>
+      <span>© 2026 NokorPass. All rights reserved. <small class="site-version">v1.7.4</small></span>
       <span class="footer-bottom-links">
         <a href="privacy.html">Privacy</a> ·
         <a href="terms.html">Terms</a> ·

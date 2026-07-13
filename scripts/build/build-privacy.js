@@ -84,6 +84,14 @@ const html = `<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy — NokorPass</title>
+    <meta name="robots" content="index, follow" />
+    <meta name="description" content="Read the NokorPass Privacy Policy. Learn how we collect, use, and protect your personal data when you book movie and event tickets in Cambodia." />
+    <link rel="canonical" href="https://nokorpass.store/privacy.html" />
+    <meta property="og:title" content="Privacy Policy — NokorPass" />
+    <meta property="og:description" content="How NokorPass collects, uses, and protects your personal data." />
+    <meta property="og:url" content="https://nokorpass.store/privacy.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="NokorPass" />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/global.css" />

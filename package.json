@@ -1,13 +1,15 @@
 {
-  "name": "cinemart_webprod1.7.3",
-  "version": "1.7.3",
+  "name": "cinemart_webprod1.7.4",
+  "version": "1.7.4",
   "description": "",
   "main": "auth-guard.js",
   "scripts": {
     "build:css": "npx @tailwindcss/cli -i css/input.css -o css/global.css",
     "watch:css": "npx @tailwindcss/cli -i css/input.css -o css/global.css --watch",
     "build:pages": "node scripts/build/build-account.js && node scripts/build/build-auth.js && node scripts/build/build-booking.js && node scripts/build/build-payment.js && node scripts/build/build-privacy.js && node scripts/build/build-terms.js && node scripts/build/build-tickets.js && node scripts/build/build-snacks.js && node scripts/build/build-events.js",
-    "build": "npm run build:css && npm run build:pages"
+    "build:seo": "node scripts/build/generate-seo.js",
+    "build:favicons": "node scripts/build/generate-favicons.js",
+    "build": "npm run build:css && node scripts/build/generate-favicons.js && npm run build:pages && npm run build:seo"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +17,8 @@
   "type": "commonjs",
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.0",
-    "tailwindcss": "^4.3.0"
+    "sharp": "^0.35.3",
+    "tailwindcss": "^4.3.0",
+    "to-ico": "^1.1.5"
   }
 }

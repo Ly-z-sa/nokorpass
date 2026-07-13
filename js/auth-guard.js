@@ -12,7 +12,9 @@ onAuthStateChanged(auth, (user) => {
   const isMoviesPage = path.endsWith('movies.html');
   const isMovieDetailsPage = path.endsWith('movie-details.html');
   
-  const isPublicPage = isAuthPage || isAuthActionPage || isPrivacyPage || isTermsPage || isHelpPage || isIndexPage || isMoviesPage || isMovieDetailsPage;
+  const isEventsPage = path.endsWith('events.html');
+  
+  const isPublicPage = isAuthPage || isAuthActionPage || isPrivacyPage || isTermsPage || isHelpPage || isIndexPage || isMoviesPage || isMovieDetailsPage || isEventsPage;
   
   const redirectUrl = encodeURIComponent(window.location.href);
   if (!user) {
