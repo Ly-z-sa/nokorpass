@@ -51,7 +51,7 @@ const EMBEDDED_FOOTER = `<footer id="site-footer">
         <div class="payment-icons">
           <img src="assets/aba.png" alt="ABA Pay" title="ABA Pay">
           <img src="assets/acleda.jpg" alt="ACLEDA Pay" title="ACLEDA Pay">
-          <img src="assets/mastercard_logo.webp" alt="Mastercard" title="Mastercard">
+          <img src="assets/Mastercard_logo.webp" alt="Mastercard" title="Mastercard">
           <img src="assets/visa.png" alt="Visa" title="Visa">
           <img src="assets/KHQR_Logo.png" alt="KHQR" title="KHQR">
         </div>
