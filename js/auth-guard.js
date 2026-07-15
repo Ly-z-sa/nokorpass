@@ -3,16 +3,17 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/fi
 
 onAuthStateChanged(auth, (user) => {
   const path = window.location.pathname;
-  const isAuthPage = path.endsWith('auth.html');
-  const isPrivacyPage = path.endsWith('privacy.html');
-  const isTermsPage = path.endsWith('terms.html');
-  const isHelpPage = path.endsWith('help.html');
-  const isAuthActionPage = path.endsWith('auth-action.html') || path.includes('/__/auth/action');
-  const isIndexPage = path.endsWith('index.html') || path === '/' || path === '';
-  const isMoviesPage = path.endsWith('movies.html');
-  const isMovieDetailsPage = path.endsWith('movie-details.html');
+  const cleanPath = path.replace('.html', '').replace(/\/$/, '');
   
-  const isEventsPage = path.endsWith('events.html');
+  const isAuthPage = cleanPath.endsWith('auth');
+  const isPrivacyPage = cleanPath.endsWith('privacy');
+  const isTermsPage = cleanPath.endsWith('terms');
+  const isHelpPage = cleanPath.endsWith('help');
+  const isAuthActionPage = cleanPath.endsWith('auth-action') || path.includes('/__/auth/action');
+  const isIndexPage = cleanPath.endsWith('index') || cleanPath === '/' || cleanPath === '' || cleanPath.endsWith('Cinemart_WebProd1.5.3') || cleanPath.endsWith('Cinemart_WebProd1.8.0');
+  const isMoviesPage = cleanPath.endsWith('movies');
+  const isMovieDetailsPage = cleanPath.endsWith('movie-details');
+  const isEventsPage = cleanPath.endsWith('events');
   
   const isPublicPage = isAuthPage || isAuthActionPage || isPrivacyPage || isTermsPage || isHelpPage || isIndexPage || isMoviesPage || isMovieDetailsPage || isEventsPage;
   
