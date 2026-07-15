@@ -244,6 +244,9 @@ const js = `
 
   document.getElementById('profileForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
     const newName = document.getElementById('displayNameInput').value;
     try {
       await updateProfile(auth.currentUser, { displayName: newName });
@@ -252,6 +255,9 @@ const js = `
       document.getElementById('avatarInitial').textContent = newName.charAt(0).toUpperCase();
     } catch (err) {
       showToast(err.message, true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Update Profile';
     }
   });
 

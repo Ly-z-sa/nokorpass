@@ -16,8 +16,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 const path = typeof window !== 'undefined' ? window.location.pathname : '';
+const cleanPath = path.replace('.html', '').replace(/\/$/, '');
 const isAuthActionPage =
-  path.includes('/__/auth/action') || path.endsWith('auth-action.html');
+  path.includes('/__/auth/action') || cleanPath.endsWith('auth-action');
 
 /* App Check + reCAPTCHA is not loaded on email link pages — skip or Auth hangs forever */
 if (!isAuthActionPage) {

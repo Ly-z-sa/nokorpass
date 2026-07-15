@@ -10,7 +10,7 @@ onAuthStateChanged(auth, (user) => {
   const isTermsPage = cleanPath.endsWith('terms');
   const isHelpPage = cleanPath.endsWith('help');
   const isAuthActionPage = cleanPath.endsWith('auth-action') || path.includes('/__/auth/action');
-  const isIndexPage = cleanPath.endsWith('index') || cleanPath === '/' || cleanPath === '' || cleanPath.endsWith('Cinemart_WebProd1.5.3') || cleanPath.endsWith('Cinemart_WebProd1.8.0');
+  const isIndexPage = cleanPath.endsWith('index') || cleanPath === '/' || cleanPath === '' || cleanPath.endsWith('Cinemart_WebProd1.5.3');
   const isMoviesPage = cleanPath.endsWith('movies');
   const isMovieDetailsPage = cleanPath.endsWith('movie-details');
   const isEventsPage = cleanPath.endsWith('events');

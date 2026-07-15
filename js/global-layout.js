@@ -87,7 +87,7 @@ const EMBEDDED_FOOTER = `<footer id="site-footer">
     </div>
 
     <div class="footer-bottom">
-      <span>© 2026 NokorPass. All rights reserved. <small class="site-version">v1.8.1</small></span>
+      <span>© 2026 NokorPass. All rights reserved. <small class="site-version">v1.8.2</small></span>
       <span class="footer-bottom-links">
         <a href="privacy.html">Privacy</a> ·
         <a href="terms.html">Terms</a> ·
@@ -158,10 +158,11 @@ async function loadGlobalLayout() {
     //   document.body.insertAdjacentHTML('beforeend', MOBILE_OVERLAY_HTML);
     // }
 
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const rawPage = window.location.pathname.split('/').pop() || 'index.html';
+    const currentPage = rawPage.replace('.html', '') || 'index';
     document.querySelectorAll('.nav-links a[data-route]').forEach((link) => {
-      const href = link.getAttribute('href');
-      if (href === currentPage || (currentPage === '' && href === 'index.html')) {
+      const href = (link.getAttribute('href') || '').replace('.html', '');
+      if (href === currentPage || (currentPage === 'index' && href === 'index')) {
         link.classList.add('active');
       } else {
         link.classList.remove('active');
