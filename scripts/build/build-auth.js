@@ -125,14 +125,28 @@ const js = `
 
     // ── Turnstile state ──
     let turnstileVerified = false;
-    window.onTurnstileSuccess = (token) => {
-      turnstileVerified = !!token;
-      updateSignupBtn();
-    };
-    window.onTurnstileExpired = () => {
-      turnstileVerified = false;
-      updateSignupBtn();
-    };
+    let turnstileWidgetId = null;
+
+    function renderTurnstile() {
+      if (window.turnstile && turnstileWidgetId === null) {
+        turnstileWidgetId = window.turnstile.render('#turnstile-container', {
+          sitekey: '0x4AAAAAAD2hL95dUBV9_63T',
+          theme: 'dark',
+          callback: function(token) {
+            turnstileVerified = !!token;
+            updateSignupBtn();
+          },
+          'expired-callback': function() {
+            turnstileVerified = false;
+            updateSignupBtn();
+          },
+          'error-callback': function() {
+            turnstileVerified = false;
+            updateSignupBtn();
+          }
+        });
+      }
+    }
 
     // Toggle logic
     loginToggle.addEventListener('click', (e) => {
@@ -147,6 +161,7 @@ const js = `
       loginForm.style.display = 'none';
       signupForm.style.display = 'flex';
       document.getElementById('authSubtitle').textContent = "Create your account";
+      renderTurnstile();
     });
 
     function showError(msg) {
@@ -450,8 +465,8 @@ const body = `
             <div id="rule-num" class="pw-rule">1 Number</div>
           </div>
         </div>
-        <!-- Cloudflare Turnstile -->
-        <div class="cf-turnstile" data-sitekey="0x4AAAAAAD2hL95dUBV9_63T" data-theme="dark" data-callback="onTurnstileSuccess" data-expired-callback="onTurnstileExpired" style="margin: 4px 0;"></div>
+        <!-- Cloudflare Turnstile programmatic container -->
+        <div id="turnstile-container" style="margin: 4px 0; min-height: 65px; display: flex; justify-content: center; align-items: center;"></div>
         <button type="submit" id="signupSubmitBtn" class="btn-auth" disabled style="opacity: 0.45;">Create Account</button>
         <p class="tos-note">
           By creating an account, you agree to our
@@ -490,7 +505,7 @@ const html = `<!DOCTYPE html>
     <link rel="stylesheet" href="css/global.css" />
     <link rel="stylesheet" href="css/pages/auth.css" />
     <script type="module" src="js/legals-init.js"></script>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
     </head>
 <body>
     ${body}
