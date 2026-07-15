@@ -5,5 +5,7 @@
       "destination": "/auth-action.html"
     }
   ],
-  "outputDirectory": "."
+  "outputDirectory": ".",
+  "cleanUrls": true,
+  "trailingSlash": false
 }

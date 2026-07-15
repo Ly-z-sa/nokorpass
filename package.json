@@ -1,6 +1,6 @@
 {
-  "name": "cinemart_webprod1.7.4",
-  "version": "1.7.4",
+  "name": "cinemart_webprod1.8.0",
+  "version": "1.8.0",
   "description": "",
   "main": "auth-guard.js",
   "scripts": {

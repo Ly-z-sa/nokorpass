@@ -287,6 +287,124 @@
       if (e.target.id === 'trailerModal') closeTrailer();
     });
   </script>
+  <!--Start of Tawk.to Script-->
+  <style>
+    .custom-chat-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: var(--accent, #e8490f);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(232, 73, 15, 0.4);
+      cursor: pointer;
+      z-index: 9999;
+      transition: transform 0.2s, background 0.2s, opacity 0.2s;
+    }
+    .custom-chat-btn:hover {
+      transform: scale(1.06);
+      background: #f05a24;
+    }
+    .custom-chat-btn svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
+    .custom-chat-loading {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: custom-chat-spin 0.8s linear infinite;
+    }
+    @keyframes custom-chat-spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+
+  <div id="custom-chat-button" class="custom-chat-btn" title="Chat with support">
+    <svg viewBox="0 0 24 24">
+      <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
+    </svg>
+  </div>
+
+  <script type="text/javascript">
+    (function() {
+      var currentUser = null;
+      var tawkLoaded = false;
+      var btn = document.getElementById('custom-chat-button');
+
+      // Check auth state
+      import('./js/firebase-config.js').then(function(mod) {
+        import('https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js').then(function(authMod) {
+          authMod.onAuthStateChanged(mod.auth, function(user) {
+            currentUser = user;
+          });
+        });
+      });
+
+      function loadAndOpenTawk(user) {
+        btn.style.opacity = '0.7';
+        btn.innerHTML = '<div class="custom-chat-loading"></div>';
+
+        window.Tawk_API = window.Tawk_API || {};
+
+        if (tawkLoaded) {
+          window.Tawk_API.setAttributes({
+            name: user.displayName || user.email.split('@')[0],
+            email: user.email
+          }, function(err) { if (err) console.error('Tawk setAttributes:', err); });
+          window.Tawk_API.showWidget();
+          window.Tawk_API.maximize();
+          btn.style.display = 'none';
+          btn.style.opacity = '1';
+          btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>';
+          return;
+        }
+
+        window.Tawk_API.onLoad = function() {
+          tawkLoaded = true;
+          window.Tawk_API.setAttributes({
+            name: user.displayName || user.email.split('@')[0],
+            email: user.email
+          }, function(err) { if (err) console.error('Tawk setAttributes:', err); });
+          window.Tawk_API.maximize();
+          btn.style.display = 'none';
+          btn.style.opacity = '1';
+          btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>';
+        };
+
+        window.Tawk_API.onChatMinimised = function() {
+          window.Tawk_API.hideWidget();
+          btn.style.display = 'flex';
+        };
+
+        // Inject script
+        var s1 = document.createElement('script');
+        var s0 = document.getElementsByTagName('script')[0];
+        s1.async = true;
+        s1.src = 'https://embed.tawk.to/6a5512282431b01d5400219e/1jte4trta';
+        s1.charset = 'UTF-8';
+        s1.setAttribute('crossorigin', '*');
+        s0.parentNode.insertBefore(s1, s0);
+      }
+
+      btn.addEventListener('click', function() {
+        if (!currentUser || !currentUser.emailVerified) {
+          window.location.href = 'auth.html?redirect=' + encodeURIComponent(window.location.href);
+        } else {
+          loadAndOpenTawk(currentUser);
+        }
+      });
+    })();
+  </script>
+  <!--End of Tawk.to Script-->
 </body>
 
 </html>

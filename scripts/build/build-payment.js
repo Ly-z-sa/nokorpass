@@ -456,6 +456,38 @@ const js = `
             createdAt: serverTimestamp()
           });
           console.log("Ticket saved to Firestore!");
+
+          // Send confirmation email via EmailJS
+          try {
+            if (window.emailjs) {
+              const ticketQtyVal = seats.split(',').length;
+              const formattedSnacks = snackList.map(s => {
+                const [id, qty] = s.split(':');
+                return \`\${qty}x \${snackNames[id] || id}\`;
+              }).join(', ');
+
+              const emailParams = {
+                to_email: user.email,
+                to_name: user.displayName || user.email.split('@')[0],
+                item_title: movieTitle + (formattedSnacks ? \` + Snacks (\${formattedSnacks})\` : ''),
+                showtime: \`\${date} at \${time}\`,
+                seats: seats,
+                ticket_qty: ticketQtyVal,
+                total_price: \`\$\${parseFloat(total).toFixed(2)}\`,
+                booking_id: orderId
+              };
+
+              // Note: Replace "YOUR_EMAILJS_PUBLIC_KEY" with your actual EmailJS Public Key from Account Settings
+              window.emailjs.send("service_0fsrfum", "template_srznnbz", emailParams, "OLu_mkA_zcxH_P9VK")
+                .then(function() {
+                  console.log("Confirmation email sent!");
+                }, function(err) {
+                  console.error("EmailJS send failed:", err);
+                });
+            }
+          } catch (emailErr) {
+            console.error("Error triggering EmailJS:", emailErr);
+          }
         }
       } catch (e) {
         console.error("Error saving ticket: ", e);
@@ -642,6 +674,7 @@ const html = `<!DOCTYPE html>
     <link rel="stylesheet" href="css/pages/payment.css" />
     <script type="module" src="js/auth-guard.js"></script>
     <script type="module" src="js/legals-init.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     </head>
 <body>
     <script src="js/global-layout.js"></script>

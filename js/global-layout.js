@@ -79,7 +79,7 @@ const EMBEDDED_FOOTER = `<footer id="site-footer">
           <h4>Support</h4>
           <ul>
             <li><a href="help.html">Help centre</a></li>
-            <li><a href="mailto:info@nokorpass.store?subject=NokorPass%20Support">Support chat</a></li>
+            <li><a href="mailto:nokorpass-cs@nokorpass.store?subject=NokorPass%20Support">Support chat</a></li>
             <li><a href="privacy.html">Privacy Policy</a></li>
             <li><a href="terms.html">Terms of Service</a></li>
           </ul>
@@ -87,7 +87,7 @@ const EMBEDDED_FOOTER = `<footer id="site-footer">
     </div>
 
     <div class="footer-bottom">
-      <span>© 2026 NokorPass. All rights reserved. <small class="site-version">v1.7.4</small></span>
+      <span>© 2026 NokorPass. All rights reserved. <small class="site-version">v1.8.0</small></span>
       <span class="footer-bottom-links">
         <a href="privacy.html">Privacy</a> ·
         <a href="terms.html">Terms</a> ·
@@ -261,3 +261,16 @@ if (document.readyState === 'loading') {
 } else {
   loadGlobalLayout();
 }
+
+
+// crisp integration -beta channel
+// window.$crisp = [];
+// window.CRISP_WEBSITE_ID = "cf15f293-0a2c-45f8-9026-afd4aa5687bd";
+
+// (function () {
+//   var d = document;
+//   var s = d.createElement("script");
+//   s.src = "https://client.crisp.chat/l.js";
+//   s.async = 1;
+//   d.getElementsByTagName("head")[0].appendChild(s);
+// })();
