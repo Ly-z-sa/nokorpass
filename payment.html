@@ -166,22 +166,7 @@
 
     const qparams = new URLSearchParams(window.location.search);
     
-    // Movie Data for lookup if title is missing
-    const moviesData = [
-      { id: 1, title: "Avatar: Fire and Ash" },
-      { id: 2, title: "Zootopia 2" },
-      { id: 3, title: "Project Hail Mary" },
-      { id: 4, title: "Hoppers" },
-      { id: 5, title: "GOAT" },
-      { id: 6, title: "Crime 101" },
-      { id: 7, title: "Peaky Blinders: The Immortal Man" },
-      { id: 8, title: "Scream 7" }
-    ];
-
-    const movieId = parseInt(qparams.get('id'));
-    const movieLookup = moviesData.find(m => m.id === movieId);
-    
-    const movieTitle = qparams.get('movie_title') || (movieLookup ? movieLookup.title : "NokorPass Movie");
+    const movieTitle = qparams.get('movie_title') || "NokorPass Movie";
     const cinema = qparams.get('cinema') || "SuperShow Cinema";
     const loc = qparams.get('location') || "TK";
     const hall = qparams.get('hall') || "Hall 1";

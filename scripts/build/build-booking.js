@@ -69,17 +69,6 @@ const css = `
 `;
 
 const js = `
-    const moviesData = [
-      { id: 1, title: "Avatar: Fire and Ash" },
-      { id: 2, title: "Zootopia 2" },
-      { id: 3, title: "Project Hail Mary" },
-      { id: 4, title: "Hoppers" },
-      { id: 5, title: "GOAT" },
-      { id: 6, title: "Crime 101" },
-      { id: 7, title: "Peaky Blinders: The Immortal Man" },
-      { id: 8, title: "Scream 7" }
-    ];
-
     let basePrice = 8.00;
     let formatType = 'premium'; // premium or standard
     let selectedSeats = [];
@@ -212,7 +201,7 @@ const js = `
 
     function initBooking() {
       const params = new URLSearchParams(window.location.search);
-      const movieId = parseInt(params.get('id')) || 1;
+      const title = params.get('movie_title') || "Movie Selection";
       const cinema = params.get('cinema') || 'SuperShow Cinema';
       const loc = params.get('location') || 'TK';
       const type = params.get('type') || '2D';
@@ -229,17 +218,9 @@ const js = `
         formatType = 'premium';
       }
 
-      const movie = moviesData.find(m => m.id === movieId);
-      if (movie) {
-        document.getElementById('bTitle').textContent = movie.title;
-        document.getElementById('bMeta').textContent = \`\${cinema} — \${loc} Branch \${hall ? '| ' + hall : ''}\`;
-        document.getElementById('bDetails').textContent = \`\${type} Format | \${date} at \${time}\`;
-      } else {
-        const title = params.get('movie_title') || "Movie Selection";
-        document.getElementById('bTitle').textContent = title;
-        document.getElementById('bMeta').textContent = \`\${cinema} — \${loc} Branch \${hall ? '| ' + hall : ''}\`;
-        document.getElementById('bDetails').textContent = \`\${type} Format | \${date} at \${time}\`;
-      }
+      document.getElementById('bTitle').textContent = title;
+      document.getElementById('bMeta').textContent = \`\${cinema} — \${loc} Branch \${hall ? '| ' + hall : ''}\`;
+      document.getElementById('bDetails').textContent = \`\${type} Format | \${date} at \${time}\`;
 
       generateSeatMap();
     }
