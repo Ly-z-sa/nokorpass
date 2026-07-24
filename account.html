@@ -145,6 +145,40 @@
   const feedbackToast = document.getElementById('feedbackToast');
   const toastMessage = document.getElementById('toastMessage');
 
+  function getFriendlyErrorMessage(err) {
+    if (!err) return "An unexpected error occurred. Please try again.";
+    const code = err.code || '';
+    switch (code) {
+      case 'auth/invalid-credential':
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+        return "Invalid email or password.";
+      case 'auth/email-already-in-use':
+        return "This email address is already in use.";
+      case 'auth/invalid-email':
+        return "Please enter a valid email address.";
+      case 'auth/weak-password':
+        return "The password is too weak (must be at least 6 characters).";
+      case 'auth/user-disabled':
+        return "This account has been disabled. Please contact support.";
+      case 'auth/popup-closed-by-user':
+        return "Google sign-in was cancelled.";
+      case 'auth/too-many-requests':
+        return "Too many requests. Please try again later.";
+      case 'auth/network-request-failed':
+        return "A network error occurred. Please check your internet connection.";
+      case 'auth/operation-not-allowed':
+        return "This sign-in method is not enabled.";
+      case 'auth/requires-recent-login':
+        return "Please log in again to perform this sensitive action.";
+      default:
+        if (err.message && !err.message.includes('Firebase') && !err.message.includes('auth/')) {
+          return err.message;
+        }
+        return "An unexpected error occurred. Please try again.";
+    }
+  }
+
   function showToast(msg, isError = false) {
     toastMessage.textContent = msg;
     feedbackToast.style.background = isError ? "#ff4b4b" : "#fff";
@@ -175,7 +209,7 @@
       document.getElementById('userName').textContent = newName;
       document.getElementById('avatarInitial').textContent = newName.charAt(0).toUpperCase();
     } catch (err) {
-      showToast(err.message, true);
+      showToast(getFriendlyErrorMessage(err), true);
     } finally {
       btn.disabled = false;
       btn.textContent = 'Update Profile';
@@ -187,7 +221,7 @@
       await sendPasswordResetEmail(auth, auth.currentUser.email);
       showToast("Password reset link sent to your email!");
     } catch (err) {
-      showToast(err.message, true);
+      showToast(getFriendlyErrorMessage(err), true);
     }
   };
 

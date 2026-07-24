@@ -164,6 +164,40 @@ const js = `
       renderTurnstile();
     });
 
+    function getFriendlyErrorMessage(err) {
+      if (!err) return "An unexpected error occurred. Please try again.";
+      const code = err.code || '';
+      switch (code) {
+        case 'auth/invalid-credential':
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+          return "Invalid email or password.";
+        case 'auth/email-already-in-use':
+          return "This email address is already in use.";
+        case 'auth/invalid-email':
+          return "Please enter a valid email address.";
+        case 'auth/weak-password':
+          return "The password is too weak (must be at least 6 characters).";
+        case 'auth/user-disabled':
+          return "This account has been disabled. Please contact support.";
+        case 'auth/popup-closed-by-user':
+          return "Google sign-in was cancelled.";
+        case 'auth/too-many-requests':
+          return "Too many requests. Please try again later.";
+        case 'auth/network-request-failed':
+          return "A network error occurred. Please check your internet connection.";
+        case 'auth/operation-not-allowed':
+          return "This sign-in method is not enabled.";
+        case 'auth/requires-recent-login':
+          return "Please log in again to perform this sensitive action.";
+        default:
+          if (err.message && !err.message.includes('Firebase') && !err.message.includes('auth/')) {
+            return err.message;
+          }
+          return "An unexpected error occurred. Please try again.";
+      }
+    }
+
     function showError(msg) {
       errorMsg.textContent = msg;
       errorMsg.style.display = 'block';
@@ -207,12 +241,44 @@ const js = `
       localStorage.removeItem('nk_login_lock_until');
     }
 
+    import { db } from './js/firebase-config.js';
+    import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+    async function syncUserProfile(user) {
+      if (!user) return;
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const snap = await getDoc(userRef);
+        if (!snap.exists()) {
+          await setDoc(userRef, {
+            uid: user.uid,
+            email: user.email || '',
+            displayName: user.displayName || user.email?.split('@')[0] || 'User',
+            isAdmin: false,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+        } else {
+          await setDoc(userRef, {
+            email: user.email || snap.data().email || '',
+            displayName: user.displayName || snap.data().displayName || 'User',
+            updatedAt: serverTimestamp()
+          }, { merge: true });
+        }
+      } catch (err) {
+        console.error("Error syncing user profile:", err);
+      }
+    }
+
     // Auth actions
     window.handleGoogleAuth = () => {
       const provider = new GoogleAuthProvider();
       signInWithPopup(auth, provider)
-        .then(() => window.location.href = 'index.html')
-        .catch(err => showError(err.message));
+        .then(async (cred) => {
+          await syncUserProfile(cred.user);
+          window.location.href = 'index.html';
+        })
+        .catch(err => showError(getFriendlyErrorMessage(err)));
     };
 
     signupForm.addEventListener('submit', (e) => {
@@ -251,7 +317,7 @@ const js = `
         showVerificationScreen();
       })
       .catch(err => {
-        showError(err.message);
+        showError(getFriendlyErrorMessage(err));
         submitBtn.disabled = false;
         submitBtn.textContent = 'Create Account';
         // Reset Turnstile so user must re-verify
@@ -277,11 +343,7 @@ const js = `
         .catch(err => {
           submitBtn.disabled = false;
           recordFailedLogin();
-          if (err.code === 'auth/invalid-credential') {
-            showError("Invalid email or password.");
-          } else {
-            showError(err.message);
-          }
+          showError(getFriendlyErrorMessage(err));
         });
     });
 
@@ -310,7 +372,7 @@ const js = `
             btn.textContent = 'Resend Verification Email';
           }, COOLDOWN);
         })
-        .catch(err => showError(err.message));
+        .catch(err => showError(getFriendlyErrorMessage(err)));
     };
 
     window.handleBackToLogin = () => {
@@ -337,18 +399,24 @@ const js = `
 
     function checkVerificationStatus() {
       const user = auth.currentUser;
-      if (user && !user.emailVerified) {
-        showVerificationScreen();
-      } else if (user) {
+      if (!user) return;
+      const isGoogleUser = user.providerData && user.providerData.some(p => p.providerId === 'google.com');
+      if (user.emailVerified || isGoogleUser) {
         window.location.href = 'index.html';
+      } else {
+        showVerificationScreen();
       }
     }
 
     onAuthStateChanged(auth, (user) => {
-      if (user && user.emailVerified) {
-        window.location.href = 'index.html';
-      } else if (user) {
-        showVerificationScreen();
+      if (user) {
+        // Google OAuth users are always verified (Google handles it)
+        const isGoogleUser = user.providerData && user.providerData.some(p => p.providerId === 'google.com');
+        if (user.emailVerified || isGoogleUser) {
+          window.location.href = 'index.html';
+        } else {
+          showVerificationScreen();
+        }
       } else {
         verificationOverlay.style.display = 'none';
       }

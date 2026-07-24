@@ -145,40 +145,30 @@
   </div>
 
   <!-- FEATURED MOVIE -->
-  <section class="featured">
+  <section class="featured" id="featuredMovieSection" style="display:none;">
     <div class="featured-info">
       <p class="section-tag">Featured Film</p>
-      <h2>Avatar: Fire and Ash</h2>
-      <div class="featured-meta">
-        <span class="meta-pill"><span class="dot"></span>2025</span>
-        <span class="meta-pill"><span class="dot"></span>Sci-Fi / Adventure</span>
-        <span class="meta-pill"><span class="dot"></span>PG-13</span>
-      </div>
-      <p>Jake Sully returns to Pandora for a desperate mission. He is abandoned by the Na'vi and must decide where his true loyalties lie — with his family, or with the world that adopted him.</p>
-      <a href="booking.html?id=1" class="btn-primary">Book Now</a>
+      <h2 id="featuredMovieTitle">Title</h2>
+      <div class="featured-meta" id="featuredMovieMeta"></div>
+      <p id="featuredMovieDesc">Description</p>
+      <a href="movies.html" id="featuredMovieBtn" class="btn-primary">Book Now</a>
     </div>
     <div class="featured-poster">
-      <img src="assets/avatar-fire-and-ash.jpg" alt="Avatar: Fire and Ash"
-        style="width:100%;height:100%;object-fit:cover;display:block;">
+      <img id="featuredMovieImg" src="" alt="Featured Movie" style="width:100%;height:100%;object-fit:cover;display:block;">
     </div>
   </section>
 
   <!-- FEATURED EVENT (Alternating Reverse Layout) -->
-  <section class="featured featured--reverse">
+  <section class="featured featured--reverse" id="featuredEventSection" style="display:none;">
     <div class="featured-info">
-      <p class="section-tag">Featured Concert</p>
-      <h2>Coldplay: Music of the Spheres</h2>
-      <div class="featured-meta">
-        <span class="meta-pill"><span class="dot"></span>Live Tour</span>
-        <span class="meta-pill"><span class="dot"></span>Stadium Concert</span>
-        <span class="meta-pill"><span class="dot"></span>From $45.00</span>
-      </div>
-      <p>Experience the record-breaking Music of the Spheres World Tour live in Phnom Penh. A spectacular night of music, lasers, and fireworks at the National Olympic Stadium.</p>
-      <a href="events.html" class="btn-primary">Book Concert Tickets</a>
+      <p class="section-tag">Featured Event</p>
+      <h2 id="featuredEventTitle">Title</h2>
+      <div class="featured-meta" id="featuredEventMeta"></div>
+      <p id="featuredEventDesc">Description</p>
+      <a href="events.html" id="featuredEventBtn" class="btn-primary">Book Event Tickets</a>
     </div>
     <div class="featured-poster">
-      <img src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&q=80&w=800" alt="Coldplay Concert"
-        style="width:100%;height:100%;object-fit:cover;display:block;">
+      <img id="featuredEventImg" src="" alt="Featured Event" style="width:100%;height:100%;object-fit:cover;display:block;">
     </div>
   </section>
 
@@ -254,15 +244,89 @@
   </div>
 
   <script type="module">
-    import { getTopRatedMovies } from './js/movies-data.js';
+    import { getMoviesAsync } from './js/movies-data.js';
     import { renderMovieCard, bindTrailerButtons } from './js/movie-cards.js';
+    import { db } from './js/firebase-config.js';
+    import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-    const topMovies = getTopRatedMovies(3);
-    const homeGrid = document.getElementById('homeTopMovies');
+    async function loadHomePage() {
+      const homeGrid = document.getElementById('homeTopMovies');
+      const allMovies = await getMoviesAsync();
+      const today = new Date().toISOString().split('T')[0];
 
-    homeGrid.innerHTML = topMovies.map((movie) => renderMovieCard(movie, { useDataTrailer: true })).join('');
+      // Top 3 rated CURRENT SHOWING movies (exclude coming soon)
+      const currentShowingMovies = allMovies.filter(m => {
+        const isComingSoon = (m.startDate && m.startDate > today)
+          || (!m.startDate && m.releaseDate && m.releaseDate > today);
+        return !isComingSoon;
+      });
 
-    bindTrailerButtons(homeGrid, (id) => openTrailer(id));
+      const topMovies = [...currentShowingMovies]
+        .filter(m => typeof m.rating === 'number')
+        .sort((a, b) => b.rating - a.rating)
+        .slice(0, 3);
+
+      if (topMovies.length) {
+        homeGrid.innerHTML = topMovies.map((movie) => renderMovieCard(movie, { useDataTrailer: true })).join('');
+        bindTrailerButtons(homeGrid, (id) => openTrailer(id));
+      } else {
+        homeGrid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--muted);padding:40px;">No movies available right now.</p>`;
+      }
+
+      // Featured Movie (isFeatured === true or first active movie)
+      const featuredMovie = allMovies.find(m => m.isFeatured === true) || allMovies[0];
+      if (featuredMovie) {
+        document.getElementById('featuredMovieTitle').textContent = featuredMovie.title;
+        document.getElementById('featuredMovieDesc').textContent = featuredMovie.synopsis || '';
+        document.getElementById('featuredMovieBtn').href = `movie-details.html?id=${featuredMovie.id}`;
+        
+        const posterSrc = featuredMovie.image && (featuredMovie.image.startsWith('http://') || featuredMovie.image.startsWith('https://'))
+          ? featuredMovie.image
+          : `assets/${encodeURI(featuredMovie.image || '')}`;
+        document.getElementById('featuredMovieImg').src = posterSrc;
+
+        const isFeaturedComingSoon = (featuredMovie.startDate && featuredMovie.startDate > today)
+          || (!featuredMovie.startDate && featuredMovie.releaseDate && featuredMovie.releaseDate > today);
+        const featuredRating = isFeaturedComingSoon ? 0 : (featuredMovie.rating ?? 0);
+
+        document.getElementById('featuredMovieMeta').innerHTML = `
+          <span class="meta-pill"><span class="dot"></span>${featuredMovie.genre || 'Movie'}</span>
+          <span class="meta-pill"><span class="dot"></span>★ ${featuredRating}</span>
+          <span class="meta-pill"><span class="dot"></span>${featuredMovie.duration || 'N/A'}</span>
+        `;
+        document.getElementById('featuredMovieSection').style.display = 'grid';
+      }
+
+      // Featured Event (isFeatured === true or first event)
+      try {
+        const eventsSnap = await getDocs(collection(db, "events"));
+        const today = new Date().toISOString().split('T')[0];
+        const allEvents = eventsSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(e => {
+          if (e.endDate && today > e.endDate) return false;
+          if (e.startDate && today < e.startDate) return false;
+          return true;
+        });
+
+        const featuredEvent = allEvents.find(e => e.isFeatured === true) || allEvents[0];
+        if (featuredEvent) {
+          document.getElementById('featuredEventTitle').textContent = featuredEvent.title;
+          document.getElementById('featuredEventDesc').textContent = featuredEvent.description || '';
+          document.getElementById('featuredEventBtn').href = 'events.html';
+          document.getElementById('featuredEventImg').src = featuredEvent.image || '';
+
+          document.getElementById('featuredEventMeta').innerHTML = `
+            <span class="meta-pill"><span class="dot"></span>${featuredEvent.category || 'Event'}</span>
+            <span class="meta-pill"><span class="dot"></span>${featuredEvent.venue || ''}</span>
+            <span class="meta-pill"><span class="dot"></span>From $${Number(featuredEvent.priceFrom || 0).toFixed(2)}</span>
+          `;
+          document.getElementById('featuredEventSection').style.display = 'grid';
+        }
+      } catch (err) {
+        console.warn("Could not load featured event:", err);
+      }
+    }
+
+    loadHomePage();
 
     window.openTrailer = function (videoId) {
       const id = String(videoId).replace(/\?.*$/, '');

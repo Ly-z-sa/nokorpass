@@ -315,31 +315,9 @@
     font-size: 0.7rem;
   }
 
-  .movies-container .card-desc {
-    display: block !important;
-    font-size: 0.68rem;
-    line-height: 1.5;
-    margin-top: 6px;
-    max-height: none;
-    overflow: visible;
-  }
-
-  .movies-container .card-desc > div {
-    margin-bottom: 10px;
-  }
-
-  .movies-container .card-desc > div:last-child {
-    margin-bottom: 0;
-  }
-
-  .movies-container .card-desc strong {
-    font-size: 0.7rem;
-  }
-
-  .movies-container .card-desc span {
-    display: block;
-    margin-top: 2px;
-    line-height: 1.4;
+  .movies-container .card-release {
+    font-size: 0.72rem;
+    margin-bottom: 8px;
   }
 }
 

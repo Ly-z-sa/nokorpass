@@ -968,31 +968,14 @@ footer {
     font-size: 0.7rem;
   }
 
-  .movies-section--spotlight .card-desc {
-    display: block !important;
-    font-size: 0.68rem;
-    line-height: 1.5;
-    margin-top: 6px;
-    max-height: none;
-    overflow: visible;
+  .movies-section--spotlight .card-release {
+    font-size: 0.72rem;
+    margin-bottom: 8px;
   }
 
-  .movies-section--spotlight .card-desc > div {
-    margin-bottom: 10px;
-  }
-
-  .movies-section--spotlight .card-desc > div:last-child {
-    margin-bottom: 0;
-  }
-
-  .movies-section--spotlight .card-desc strong {
-    font-size: 0.7rem;
-  }
-
-  .movies-section--spotlight .card-desc span {
-    display: block;
-    margin-top: 2px;
-    line-height: 1.4;
+  .movies-section--spotlight .format-tag {
+    font-size: 0.6rem;
+    padding: 2px 6px;
   }
 }
 
@@ -1148,50 +1131,99 @@ footer {
       text-align: center;
     }
 
+.card-status-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(232, 73, 15, 0.4);
+  z-index: 2;
+}
+
 .card-rating {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: var(--accent2);
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 20px;
-    }
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--accent2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  z-index: 2;
+}
 
 .card-body {
-      padding: 18px 20px 22px;
-    }
+  padding: 16px 18px 18px;
+}
 
 .card-genre {
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 6px;
-    }
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
 
 .card-title {
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 1rem;
-      color: var(--white);
-      margin-bottom: 8px;
-    }
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--white);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-.card-desc {
-      font-size: 0.8rem;
-      color: var(--muted);
-      line-height: 1.6;
-      display: -webkit-box;
-      line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
+.card-release {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.card-release svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.card-formats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.format-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-transform: uppercase;
+}
+
+.format-tag--special {
+  background: rgba(232, 73, 15, 0.15);
+  color: var(--accent);
+  border-color: rgba(232, 73, 15, 0.3);
+}
 
 
 /* ── CONFIRM DIALOG ── */

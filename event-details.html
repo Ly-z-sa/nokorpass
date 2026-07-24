@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Details — NokorPass</title>
+  <meta name="robots" content="index, follow" />
+  <meta name="description" content="Book your tickets for this event on NokorPass — instant confirmation, safe payment." />
+  <meta name="theme-color" content="#e8490f" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="/favicon-192.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/global.css" />
+  <script type="module" src="js/auth-guard.js"></script>
+  <style>
+    :root {
+      --accent: #e8490f;
+      --accent-dim: rgba(232,73,15,0.15);
+      --bg: #0a0a0c;
+      --surface: #111114;
+      --surface2: #18181c;
+      --border: rgba(255,255,255,0.08);
+      --white: #f4f4f5;
+      --muted: #71717a;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--white); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+    /* ── HERO ── */
+    .event-hero {
+      position: relative;
+      width: 100%;
+      min-height: 480px;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+    .event-hero-bg {
+      position: absolute; inset: 0;
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.35) saturate(1.2);
+      transform: scale(1.05);
+      transition: transform 8s ease;
+    }
+    .event-hero:hover .event-hero-bg { transform: scale(1.0); }
+    .event-hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, #0a0a0c 0%, rgba(10,10,12,0.6) 50%, transparent 100%);
+    }
+    .event-hero-content {
+      position: relative;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px 40px;
+    }
+    .event-category-badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .event-hero-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      color: #fff;
+      margin-bottom: 20px;
+      max-width: 700px;
+    }
+    .event-hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: center;
+    }
+    .meta-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.75);
+    }
+    .meta-chip svg { width: 16px; height: 16px; color: var(--accent); flex-shrink: 0; }
+    .meta-chip strong { color: #fff; }
+
+    /* ── LAYOUT ── */
+    .event-body {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 40px;
+      align-items: start;
+    }
+    @media (max-width: 860px) {
+      .event-body { grid-template-columns: 1fr; }
+      .booking-sidebar { order: -1; }
+    }
+
+    /* ── SECTIONS ── */
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::before {
+      content: '';
+      display: block;
+      width: 3px;
+      height: 18px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .event-description {
+      font-size: 15px;
+      line-height: 1.8;
+      color: rgba(255,255,255,0.72);
+      margin-bottom: 40px;
+      white-space: pre-line;
+    }
+
+    /* ── DETAILS TABLE ── */
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+    @media (max-width: 600px) { .details-grid { grid-template-columns: 1fr; } }
+    .detail-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .detail-icon {
+      width: 36px; height: 36px;
+      background: var(--accent-dim);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+    }
+    .detail-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; }
+    .detail-value { font-size: 14px; font-weight: 600; color: #fff; }
+
+    /* ── SEAT MAP ── */
+    .seat-map-section { margin-bottom: 40px; }
+    .seat-map-img {
+      width: 100%;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      object-fit: contain;
+      background: var(--surface);
+      cursor: zoom-in;
+      transition: transform 0.2s;
+    }
+    .seat-map-img:hover { transform: scale(1.01); }
+
+    /* ── BOOKING SIDEBAR ── */
+    .booking-sidebar {
+      position: sticky;
+      top: 24px;
+    }
+    .booking-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .booking-card-header {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .price-from {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .price-from-label { font-size: 12px; color: var(--muted); font-weight: 500; }
+    .price-from-amount { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; color: #fff; }
+    .price-from-currency { font-size: 1rem; color: var(--muted); font-weight: 500; }
+
+    .form-field { display: flex; flex-direction: column; gap: 8px; }
+    .form-field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .field-input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+    .field-input:focus { border-color: var(--accent); }
+
+    /* Custom dropdown */
+    .custom-select { position: relative; width: 100%; user-select: none; }
+    .custom-select-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .custom-select-trigger:hover,
+    .custom-select.open .custom-select-trigger { border-color: var(--accent); }
+    .custom-select-trigger-text { flex: 1; }
+    .custom-select-arrow {
+      width: 18px; height: 18px;
+      color: var(--muted);
+      flex-shrink: 0;
+      transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+    .custom-select.open .custom-select-arrow { transform: rotate(180deg); }
+    .custom-select-options {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0; right: 0;
+      background: #1a1a1f;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      z-index: 100;
+      max-height: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: max-height 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.2s;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+    }
+    .custom-select.open .custom-select-options {
+      max-height: 260px;
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .custom-select-option {
+      padding: 12px 14px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .custom-select-option:last-child { border-bottom: none; }
+    .custom-select-option:hover { background: rgba(232,73,15,0.12); color: #fff; }
+    .custom-select-option.selected { background: rgba(232,73,15,0.18); color: var(--accent); font-weight: 600; }
+
+    .total-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+      border-top: 1px solid var(--border);
+    }
+    .total-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .total-amount { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: #fff; }
+
+    .btn-book {
+      width: 100%;
+      padding: 16px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Syne', sans-serif;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 24px rgba(232,73,15,0.35);
+    }
+    .btn-book:hover { background: #f05a24; transform: translateY(-1px); box-shadow: 0 8px 32px rgba(232,73,15,0.45); }
+    .btn-book:active { transform: translateY(0); }
+    .btn-book:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .booking-notice {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* ── LOADING / ERROR STATES ── */
+    .state-center {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 50vh; gap: 16px; text-align: center; padding: 40px;
+    }
+    .state-icon { font-size: 48px; }
+    .state-title { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 700; color: #fff; }
+    .state-sub { font-size: 14px; color: var(--muted); }
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: border-color 0.2s;
+      cursor: pointer;
+    }
+    .btn-back:hover { border-color: var(--accent); }
+
+    .detail-icon svg { width: 16px; height: 16px; stroke: var(--accent); fill: none; }
+
+    /* ── SKELETON LOADER ── */
+    @keyframes shimmer {
+      0% { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface) 25%, var(--surface2) 50%, var(--surface) 75%);
+      background-size: 400px 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <script src="js/global-layout.js"></script>
+
+  <div id="pageLoader" class="state-center">
+    <div class="state-title">Loading Event...</div>
+    <div class="state-sub">Fetching details from Firestore</div>
+  </div>
+
+  <div id="pageContent" style="display:none">
+    <!-- HERO -->
+    <div class="event-hero" id="eventHero">
+      <div class="event-hero-bg" id="heroBg"></div>
+      <div class="event-hero-overlay"></div>
+      <div class="event-hero-content">
+        <div class="event-category-badge" id="heroCategoryBadge">Event</div>
+        <h1 class="event-hero-title" id="heroTitle">Loading...</h1>
+        <div class="event-hero-meta" id="heroMeta"></div>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="event-body">
+      <!-- LEFT: Details -->
+      <div class="event-left">
+        <!-- About -->
+        <div class="section-title">About This Event</div>
+        <p class="event-description" id="eventDescription">—</p>
+
+        <!-- Event Details Grid -->
+        <div class="section-title">Event Details</div>
+        <div class="details-grid" id="detailsGrid"></div>
+
+        <!-- Seat Map -->
+        <div class="seat-map-section" id="seatMapSection" style="display:none">
+          <div class="section-title">Seat Map</div>
+          <img id="seatMapImg" class="seat-map-img" alt="Venue Seat Map" onclick="window.open(this.src,'_blank')" title="Click to open full size" />
+          <p style="font-size:12px;color:var(--muted);margin-top:8px;">Click image to view full size</p>
+        </div>
+      </div>
+
+      <!-- RIGHT: Booking Sidebar -->
+      <aside class="booking-sidebar">
+        <div class="booking-card">
+          <div class="booking-card-header">Book Your Tickets</div>
+
+          <div class="price-from">
+            <span class="price-from-currency">USD</span>
+            <span class="price-from-amount" id="priceFrom">—</span>
+            <span class="price-from-label">/ ticket from</span>
+          </div>
+
+          <div class="form-field">
+            <label>Ticket Category</label>
+            <div class="custom-select" id="tierDropdown">
+              <div class="custom-select-trigger" id="tierTrigger">
+                <span class="custom-select-trigger-text" id="tierTriggerText">Select a category</span>
+                <svg class="custom-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </div>
+              <div class="custom-select-options" id="tierOptions"></div>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="qtyInput">Quantity</label>
+            <input type="number" id="qtyInput" class="field-input" min="1" max="10" value="1" oninput="updateTotal()" onchange="updateTotal()" />
+          </div>
+
+          <div class="total-row">
+            <div>
+              <div class="total-label">Total</div>
+              <div class="total-amount">$<span id="totalAmount">0.00</span></div>
+            </div>
+          </div>
+
+          <button class="btn-book" id="checkoutBtn" onclick="proceedToCheckout()">Proceed to Checkout</button>
+
+          <p class="booking-notice">Secure checkout &middot; Instant e-ticket &middot; No hidden fees</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="pageError" class="state-center" style="display:none">
+    <div class="state-title">Event Not Found</div>
+    <div class="state-sub">This event may have been removed or the link is invalid.</div>
+    <a href="events.html" class="btn-back">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      Back to Events
+    </a>
+  </div>
+
+  <script type="module">
+    import { db } from './js/firebase-config.js';
+    import { doc, getDoc, collection, getDocs } from 'https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js';
+
+    let currentEvent = null;
+
+    async function loadEvent() {
+      const params = new URLSearchParams(window.location.search);
+      const eventId = params.get('id');
+
+      try {
+        let event = null;
+
+        if (eventId) {
+          // Try by Firestore doc ID
+          const snap = await getDoc(doc(db, 'events', eventId));
+          if (snap.exists()) {
+            event = { id: snap.id, ...snap.data() };
+          }
+        }
+
+        if (!event) {
+          // Fallback: scan collection
+          const all = await getDocs(collection(db, 'events'));
+          all.forEach(d => {
+            if (String(d.data().id) === String(eventId)) {
+              event = { id: d.id, ...d.data() };
+            }
+          });
+        }
+
+        if (!event) {
+          showError();
+          return;
+        }
+
+        currentEvent = event;
+        renderEvent(event);
+      } catch (err) {
+        console.error('Failed to load event:', err);
+        showError();
+      }
+    }
+
+    function renderEvent(e) {
+      // Update page title & meta
+      document.title = `${e.title} — NokorPass`;
+
+      // Hero
+      const heroBg = document.getElementById('heroBg');
+      if (e.image) heroBg.style.backgroundImage = `url('${e.image}')`;
+
+      document.getElementById('heroCategoryBadge').textContent = e.category || 'Event';
+      document.getElementById('heroTitle').textContent = e.title;
+
+      // Hero meta chips
+      const metaItems = [
+        { icon: svgCalendar(), label: e.displayDate || e.date || '—' },
+        { icon: svgClock(), label: e.time || '—' },
+        { icon: svgPin(), label: [e.venue, e.location, e.country].filter(Boolean).join(', ') }
+      ];
+      document.getElementById('heroMeta').innerHTML = metaItems.map(m => `
+        <div class="meta-chip">${m.icon}<strong>${m.label}</strong></div>
+      `).join('');
+
+      // Description
+      document.getElementById('eventDescription').textContent = e.description || 'No description provided for this event.';
+
+      // Details grid
+      const svgDate = `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`;
+      const svgTime = `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`;
+      const svgVenue = `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+      const svgCity = `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`;
+      const svgGlobe = `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>`;
+      const svgTag = `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`;
+      const details = [
+        { icon: svgDate,  label: 'Event Date', value: e.displayDate || e.date || '—' },
+        { icon: svgTime,  label: 'Start Time', value: e.time || '—' },
+        { icon: svgVenue, label: 'Venue',      value: e.venue || '—' },
+        { icon: svgCity,  label: 'City',       value: e.location || '—' },
+        { icon: svgGlobe, label: 'Country',    value: e.country || '—' },
+        { icon: svgTag,   label: 'Category',   value: e.category || '—' },
+      ];
+      document.getElementById('detailsGrid').innerHTML = details.map(d => `
+        <div class="detail-item">
+          <div class="detail-icon">${d.icon}</div>
+          <div>
+            <div class="detail-label">${d.label}</div>
+            <div class="detail-value">${d.value}</div>
+          </div>
+        </div>
+      `).join('');
+
+      // Seat map
+      if (e.seatMapImage) {
+        document.getElementById('seatMapSection').style.display = 'block';
+        document.getElementById('seatMapImg').src = e.seatMapImage;
+      }
+
+      // Booking sidebar — custom dropdown
+      document.getElementById('priceFrom').textContent = Number(e.priceFrom || 0).toFixed(2);
+
+      // Build tiers list
+      let tiers = [];
+      if (e.prices && typeof e.prices === 'object' && Object.keys(e.prices).length) {
+        tiers = Object.entries(e.prices).map(([name, price]) => ({ name, price: Number(price) }));
+      } else {
+        tiers = [{ name: 'General', price: Number(e.priceFrom || 0) }];
+      }
+
+      // Populate custom dropdown options
+      const optionsEl = document.getElementById('tierOptions');
+      const triggerText = document.getElementById('tierTriggerText');
+      const dropdown = document.getElementById('tierDropdown');
+      const trigger = document.getElementById('tierTrigger');
+      let selectedTier = tiers[0];
+
+      function renderOptions() {
+        optionsEl.innerHTML = tiers.map((t, i) => `
+          <div class="custom-select-option${t.name === selectedTier.name ? ' selected' : ''}" data-index="${i}">
+            ${t.name} — $${t.price.toFixed(2)}
+          </div>
+        `).join('');
+        optionsEl.querySelectorAll('.custom-select-option').forEach(opt => {
+          opt.addEventListener('click', () => {
+            selectedTier = tiers[parseInt(opt.dataset.index)];
+            triggerText.textContent = `${selectedTier.name} — $${selectedTier.price.toFixed(2)}`;
+            dropdown.classList.remove('open');
+            renderOptions();
+            updateTotal();
+          });
+        });
+      }
+
+      // Set initial label
+      triggerText.textContent = `${selectedTier.name} — $${selectedTier.price.toFixed(2)}`;
+      renderOptions();
+
+      // Toggle open/close
+      trigger.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        dropdown.classList.toggle('open');
+      });
+
+      // Close on outside click
+      document.addEventListener('click', (ev) => {
+        if (!dropdown.contains(ev.target)) dropdown.classList.remove('open');
+      });
+
+      // Store reference for checkout
+      window._getSelectedTier = () => selectedTier;
+
+      updateTotal();
+
+      // Show content
+      document.getElementById('pageLoader').style.display = 'none';
+      document.getElementById('pageContent').style.display = 'block';
+    }
+
+    function showError() {
+      document.getElementById('pageLoader').style.display = 'none';
+      document.getElementById('pageError').style.display = 'flex';
+    }
+
+    window.updateTotal = function () {
+      if (!currentEvent) return;
+      const tier = window._getSelectedTier ? window._getSelectedTier() : { price: Number(currentEvent.priceFrom || 0) };
+      const price = tier.price;
+      const qty = Math.max(1, Math.min(10, parseInt(document.getElementById('qtyInput').value) || 1));
+      document.getElementById('totalAmount').textContent = (price * qty).toFixed(2);
+    };
+
+    window.proceedToCheckout = function () {
+      if (!currentEvent) return;
+      const { auth } = await_auth();
+      _doCheckout();
+    };
+
+    async function _doCheckout() {
+      const { auth } = await import('./js/firebase-config.js');
+      const { onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js');
+
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          window.location.href = 'auth.html?redirect=' + encodeURIComponent(window.location.href);
+          return;
+        }
+        const isGoogleUser = user.providerData && user.providerData.some(p => p.providerId === 'google.com');
+        if (!user.emailVerified && !isGoogleUser) {
+          window.location.href = 'auth.html?redirect=' + encodeURIComponent(window.location.href);
+          return;
+        }
+
+        const e = currentEvent;
+        const selectedTier = window._getSelectedTier ? window._getSelectedTier() : { name: 'General', price: Number(e.priceFrom || 0) };
+        const tierName = selectedTier.name;
+        const price = selectedTier.price;
+        const qty = parseInt(document.getElementById('qtyInput').value) || 1;
+        const total = (price * qty).toFixed(2);
+
+        const params = new URLSearchParams();
+        params.set('id', e.id);
+        params.set('movie_title', e.title);
+        params.set('cinema', e.venue);
+        params.set('location', [e.location, e.country].filter(Boolean).join(', '));
+        params.set('hall', 'Main Arena');
+        params.set('type', tierName + ' Class');
+        params.set('time', e.time || '');
+        params.set('date', e.displayDate || e.date || '');
+        params.set('seats', tierName + ' Zone (' + qty + ' Ticket' + (qty > 1 ? 's' : '') + ')');
+        params.set('ticket_total', total);
+
+        window.location.href = 'payment.html?' + params.toString();
+      });
+    }
+
+    // Fix: proceedToCheckout uses async properly
+    window.proceedToCheckout = _doCheckout;
+
+    // SVG helpers
+    function svgCalendar() {
+      return `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`;
+    }
+    function svgClock() {
+      return `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`;
+    }
+    function svgPin() {
+      return `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`;
+    }
+
+    // Boot
+    loadEvent();
+  </script>
+</body>
+</html>

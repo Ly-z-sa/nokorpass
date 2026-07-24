@@ -81,18 +81,24 @@
 
 
   <script type="module">
-    import { moviesData } from './js/movies-data.js';
+    import { getMoviesAsync } from './js/movies-data.js';
     import { SITE_URL } from './js/seo-config.js';
 
-    function renderMovieDetails() {
+    async function renderMovieDetails() {
       const params = new URLSearchParams(window.location.search);
-      let movieId = parseInt(params.get('id'));
-      
-      // Default to movie 1 if none provided
-      if (!movieId || isNaN(movieId)) movieId = 1;
+      const movieIdParam = params.get('id');
 
-      const movie = moviesData.find(m => m.id === movieId);
-      if (!movie) return;
+      // Load all movies from Firestore
+      const allMovies = await getMoviesAsync();
+
+      // Find by Firestore doc ID (string) or numeric id field
+      let movie = allMovies.find(m => String(m.id) === String(movieIdParam));
+      // Fallback: first movie if no id param or not found
+      if (!movie) movie = allMovies[0];
+      if (!movie) {
+        document.getElementById('movieShowtimes').innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0">No movies available. Add movies via the Admin Panel.</p>';
+        return;
+      }
 
       const movieUrl = `${SITE_URL}/movie-details.html?id=${movie.id}`;
 
@@ -109,16 +115,20 @@
         });
       }
 
+      const detailToday = new Date().toISOString().split('T')[0];
+      const isDetailComingSoon = (movie.startDate && movie.startDate > detailToday) || (movie.releaseDate && movie.releaseDate > detailToday);
+      const detailRating = isDetailComingSoon ? 0 : (movie.rating ?? 0);
+
       // Render Hero
       const hero = document.getElementById('movieHero');
       hero.innerHTML = `
         <div class="hero-poster">
-          <img src="assets/${encodeURI(movie.image)}" alt="${movie.title}">
+          <img src="${movie.image && (movie.image.startsWith('http://') || movie.image.startsWith('https://')) ? movie.image : 'assets/' + encodeURI(movie.image)}" alt="${movie.title}" onerror="this.style.display='none'">
         </div>
         <div class="hero-info">
           <h1 class="hero-title">${movie.title}</h1>
           <div class="hero-meta">
-            <span class="hero-rating">★ ${movie.rating}</span>
+            <span class="hero-rating">★ ${detailRating}</span>
             <span>${movie.duration}</span>
             <span>|</span>
             <span>${movie.genre}</span>
@@ -192,60 +202,95 @@
 
       let stHtml = '';
 
-      // Mock random times
-      const mockTimes = ['09:30 AM', '11:15 AM', '01:45 PM', '04:20 PM', '07:00 PM', '09:45 PM'];
+      // Dynamic Showtimes Algorithm: Calculates non-overlapping schedules per Hall with 1-hour gap
+      // 1. Determine runtime in minutes (default 120 min if unspecified)
+      let durationMinutes = 120;
+      if (movie.duration) {
+        const match = movie.duration.match(/(\d+)/);
+        if (match) durationMinutes = parseInt(match[1], 10);
+      } else if (movie.runtime) {
+        const match = movie.runtime.match(/(\d+)/);
+        if (match) durationMinutes = parseInt(match[1], 10);
+      }
 
-      movie.cinemas.forEach(cinema => {
-        if (fCinema && cinema.name !== fCinema) return;
+      // Slot length = Movie duration + 60 minutes buffer/cleanup
+      const slotLength = durationMinutes + 60;
 
-        let hasValidLocations = false;
-        let cinemaHtml = `
-          <div class="cinema-block">
-            <h3 class="cinema-block-header">${cinema.name}</h3>
-        `;
+      // Operating window: 09:00 AM (540 mins) to 11:30 PM (1410 mins)
+      const dayStart = 540; 
+      const dayEnd = 1410;
 
-        cinema.locations.forEach(loc => {
-          if (fLocation && loc !== fLocation) return;
-          
-          let hasValidTheatres = false;
-          let locHtml = `<div class="location-group">
-            <div class="location-name">📍 ${loc} Branch</div>
+      function generateHallSchedule(hallOffsetMinutes) {
+        const times = [];
+        let curr = dayStart + hallOffsetMinutes;
+        while (curr + durationMinutes <= dayEnd) {
+          const hours = Math.floor(curr / 60);
+          const mins = curr % 60;
+          const period = hours >= 12 ? 'PM' : 'AM';
+          const displayHours = hours % 12 === 0 ? 12 : hours % 12;
+          const timeStr = `${String(displayHours).padStart(2, '0')}:${String(mins).padStart(2, '0')} ${period}`;
+          times.push(timeStr);
+          curr += slotLength;
+        }
+        return times;
+      }
+
+      if (!movie.cinemas || !movie.cinemas.length) {
+        stHtml = '<p style="color:var(--muted);text-align:center;padding:40px 0">No cinema listings added for this movie yet.</p>';
+      } else {
+        movie.cinemas.forEach(cinema => {
+          if (fCinema && cinema.name !== fCinema) return;
+
+          let hasValidLocations = false;
+          let cinemaHtml = `
+            <div class="cinema-block">
+              <h3 class="cinema-block-header">${cinema.name}</h3>
           `;
 
-          cinema.theatreTypes.forEach(type => {
-            if (fTheatre && type !== fTheatre) return;
+          cinema.locations.forEach(loc => {
+            if (fLocation && loc !== fLocation) return;
 
-            hasValidTheatres = true;
-            hasValidLocations = true;
-
-            // Randomly pick a few times for realism
-            const timesPool = mockTimes.filter(() => Math.random() > 0.3);
-            if (timesPool.length === 0) timesPool.push('07:00 PM'); // Guarantee at least 1 time
-
-            locHtml += `
-              <div class="format-group">
-                <div class="format-label">${type}</div>
-                <div class="times-list">
-                  ${timesPool.map((t, idx) => {
-                    const hallName = (type === '2D' || type === '3D') ? `Hall ${idx + 1}` : `${type} Hall`;
-                    return `<button class="time-btn" onclick="window.location.href='booking.html?id=${movie.id}&movie_title=${encodeURIComponent(movie.title)}&cinema=${encodeURIComponent(cinema.name)}&location=${encodeURIComponent(loc)}&type=${encodeURIComponent(type)}&hall=${encodeURIComponent(hallName)}&time=${encodeURIComponent(t)}&date=${encodeURIComponent(selectedDateStr)}'"><span style="display:block; font-size: 0.7em; opacity: 0.7; margin-bottom: 2px;">${hallName}</span>${t}</button>`;
-                  }).join('')}
-                </div>
-              </div>
+            let hasValidTheatres = false;
+            let locHtml = `<div class="location-group">
+              <div class="location-name">📍 ${loc} Branch</div>
             `;
-          });
-          locHtml += `</div>`;
-          
-          if (hasValidTheatres) {
-             cinemaHtml += locHtml;
-          }
-        });
-        cinemaHtml += `</div>`;
 
-        if (hasValidLocations) {
-           stHtml += cinemaHtml;
-        }
-      });
+            cinema.theatreTypes.forEach((type, typeIdx) => {
+              if (fTheatre && type !== fTheatre) return;
+
+              hasValidTheatres = true;
+              hasValidLocations = true;
+
+              // 2 halls for 2D/3D, 1 hall for premium formats
+              const hallsCount = (type === '2D' || type === '3D') ? 2 : 1;
+              let formatTimesHtml = '';
+
+              for (let h = 0; h < hallsCount; h++) {
+                const hallName = (type === '2D' || type === '3D') ? `Hall ${h + 1}` : `${type} Hall`;
+                const hallOffset = h * 35 + typeIdx * 15;
+                const schedule = generateHallSchedule(hallOffset);
+
+                formatTimesHtml += schedule.map(t =>
+                  `<button class="time-btn" onclick="window.location.href='booking.html?id=${movie.id}&movie_title=${encodeURIComponent(movie.title)}&cinema=${encodeURIComponent(cinema.name)}&location=${encodeURIComponent(loc)}&type=${encodeURIComponent(type)}&hall=${encodeURIComponent(hallName)}&time=${encodeURIComponent(t)}&date=${encodeURIComponent(selectedDateStr)}'"><span style="display:block;font-size:0.7em;opacity:0.7;margin-bottom:2px">${hallName}</span>${t}</button>`
+                ).join('');
+              }
+
+              locHtml += `
+                <div class="format-group">
+                  <div class="format-label">${type}</div>
+                  <div class="times-list">${formatTimesHtml}</div>
+                </div>
+              `;
+            });
+
+            locHtml += `</div>`;
+            if (hasValidTheatres) cinemaHtml += locHtml;
+          });
+
+          cinemaHtml += `</div>`;
+          if (hasValidLocations) stHtml += cinemaHtml;
+        });
+      }
 
       if (stHtml === '') {
         stHtml = '<p style="color: var(--muted);">No showtimes found for the selected filters.</p>';
@@ -254,7 +299,10 @@
       showtimesContainer.innerHTML = stHtml;
     }
 
-    renderMovieDetails();
+    renderMovieDetails().catch(err => {
+      console.error('Failed to render movie details:', err);
+      document.getElementById('movieShowtimes').innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0">Error loading movie. Please try again.</p>';
+    });
 
   </script>
 </body>

@@ -39,3 +39,6 @@ build/
 # Keep build scripts under scripts/build
 !scripts/build/
 !scripts/build/**
+
+# Admin Panel (hosted separately)
+admin/
